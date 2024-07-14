@@ -229,7 +229,7 @@ Na conecção com o socket, precisa passar alguns paramentros
 - auth
 ```json
     {
-        "token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub21lIjoibG9qYSAxIiwiZW1wcmVzYUlkIjoidmluaWNpdXMtYWd1aWFyLTMxMTU4YTVlZGJlMWM4ZjAyN2I1OTVkOTFlMTNiZjljNTQ2OTk4NGEiLCJjbnBqIjoiMTIxMjMxMjMzMzMiLCJsb2phSWQiOiJsb2phLTEtMWEzMzE3ZmZiYjQ5MDU3MmM2MzQ3YWRiNzk5Njk3NDM4MWQxNWEzYiIsImlkIjoiNjY5MmYwYTIzZjJmNmExYmYyNGY0NDllIiwiaWF0IjoxNzIwOTI1NzMyLCJleHAiOjE3MjM1MTc3MzJ9.1iLnfcaBEKyEie7QQwTxwrxwKaUDaFV_FHGzT03zPEs""
+        "token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub21lIjoibG9qYSAxIiwiZW1wcmVzYUlkIjoidmluaWNpdXMtYWd1aWFyLTMxMTU4YTVlZGJlMWM4ZjAyN2I1OTVkOTFlMTNiZjljNTQ2OTk4NGEiLCJjbnBqIjoiMTIxMjMxMjMzMzMiLCJsb2phSWQiOiJsb2phLTEtMWEzMzE3ZmZiYjQ5MDU3MmM2MzQ3YWRiNzk5Njk3NDM4MWQxNWEzYiIsImlkIjoiNjY5MmYwYTIzZjJmNmExYmYyNGY0NDllIiwiaWF0IjoxNzIwOTI1NzMyLCJleHAiOjE3MjM1MTc3MzJ9.1iLnfcaBEKyEie7QQwTxwrxwKaUDaFV_FHGzT03zPEs"
     }
 ```
 - query
@@ -249,9 +249,9 @@ Retorno
 ```json
 [
   {
-    id: "66934f0f4de87eca803449d2"
-    lojaId: "loja-1-575b0c6fda653be0ef8a2b221089e35119ef867d"
-    qtd: 10
+    "id": "66934f0f4de87eca803449d2"
+    "lojaId": "loja-1-575b0c6fda653be0ef8a2b221089e35119ef867d"
+    "qtd": 10
   }
 ]
 
