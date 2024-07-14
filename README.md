@@ -1,6 +1,6 @@
 <h1 align="center">End-point backend loja</h1>
 
-## End point base: https://loja-back-1.onrender.com/ 
+## URL base: https://loja-back-1.onrender.com/ 
 ### Autenticação
 
 - (Fazer o login) **POST** : "auth/loja/login"
