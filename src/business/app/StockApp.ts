@@ -11,7 +11,7 @@ import { StockGatway } from "../gatways/StockGateway";
 export class StockApp {
   constructor(
     @InjectModel(Stock.name) private readonly stockModel: Model<Stock>,
-    private readonly stocGatway: StockGatway
+    private readonly stockGateway: StockGatway
   ) {}
 
   public updateStock = async (dto: UpdateStockDto[], user: ShopViewModel) => {
@@ -23,7 +23,7 @@ export class StockApp {
     }, { qtd: item.qtd  }, { new: true, upsert: true }))
     const newStock = await Promise.all(newStockPromises)
 
-    this.stocGatway.notifyStockChanges(newStock.map(mapToStockViewModel))
+    this.stockGateway.notifyStockChanges(newStock.map(mapToStockViewModel))
 
     return newStock
   }
