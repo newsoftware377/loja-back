@@ -1,6 +1,6 @@
 <h1 align="center">End-point backend loja</h1>
 
-## End point base: https://loja-back-1.onrender.com/ 
+## URL base: https://loja-back-1.onrender.com/ 
 ### Autenticação
 
 - (Fazer o login) **POST** : "auth/loja/login"
@@ -229,7 +229,7 @@ Na conecção com o socket, precisa passar alguns paramentros
 - auth
 ```json
     {
-        "token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub21lIjoibG9qYSAxIiwiZW1wcmVzYUlkIjoidmluaWNpdXMtYWd1aWFyLTMxMTU4YTVlZGJlMWM4ZjAyN2I1OTVkOTFlMTNiZjljNTQ2OTk4NGEiLCJjbnBqIjoiMTIxMjMxMjMzMzMiLCJsb2phSWQiOiJsb2phLTEtMWEzMzE3ZmZiYjQ5MDU3MmM2MzQ3YWRiNzk5Njk3NDM4MWQxNWEzYiIsImlkIjoiNjY5MmYwYTIzZjJmNmExYmYyNGY0NDllIiwiaWF0IjoxNzIwOTI1NzMyLCJleHAiOjE3MjM1MTc3MzJ9.1iLnfcaBEKyEie7QQwTxwrxwKaUDaFV_FHGzT03zPEs"
+        "token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub21lIjoibG9qYSAxIiwiZW1wcmVzYUlkIjoidmluaWNpdXMtYWd1aWFyLTMxMTU4YTVlZGJlMWM4ZjAyN2I1OTVkOTFlMTNiZjljNTQ2OTk4NGEiLCJjbnBqIjoiMTIxMjMxMjMzMzMiLCJsb2phSWQiOiJsb2phLTEtMWEzMzE3ZmZiYjQ5MDU3MmM2MzQ3YWRiNzk5Njk3NDM4MWQxNWEzYiIsImlkIjoiNjY5MmYwYTIzZjJmNmExYmYyNGY0NDllIiwiaWF0IjoxNzIwOTI1NzMyLCJleHAiOjE3MjM1MTc3MzJ9.1iLnfcaBEKyEie7QQwTxwrxwKaUDaFV_FHGzT03zPEs"
     }
 ```
 - query
