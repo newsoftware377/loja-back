@@ -16,6 +16,9 @@ export class Product {
 
   @Prop({ required: true, type: Number})
   valorOriginal: number
+
+  @Prop({ required: true, type: Number})
+  valorCompra: number
   
   @Prop({ required: true, type: Number})
   codigoBarra: number

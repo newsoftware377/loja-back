@@ -19,21 +19,21 @@ export class ProductApp {
     dto: CreateProductDto,
     shop: ShopViewModel
   ): Promise<ProductWithBarCode> => {
-    const barCode = String(new Date().valueOf()).slice(0, 11)
 
     const product = await this.productModel.create({
       nome: dto.nome,
       categoria: dto.categoria,
       valorAtual: dto.valorAtual || dto.valorOriginal,
       valorOriginal: dto.valorOriginal,
+      valorCompra: dto.valorCompra,
       lojaId: shop.lojaId,
       empresaId: shop.empresaId,
-      codigoBarra: barCode
+      codigoBarra: dto.codigoBarra
     });
 
     let code = '';
     try {
-      code = (await this.generateBarCodeImg(barCode)) as string;
+      code = (await this.generateBarCodeImg(String(dto.codigoBarra))) as string;
     } catch(err) {
     }
 

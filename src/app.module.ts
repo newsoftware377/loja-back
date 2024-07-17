@@ -18,6 +18,9 @@ import { StockController } from './api/controllers/StockController';
 import { StockApp } from './business/app/StockApp';
 import { Stock, StockSchema } from './business/models/StockModel';
 import { StockGatway } from './business/gatways/StockGateway';
+import { Order, OrderSchema } from './business/models/OrderModel';
+import { OrderController } from './api/controllers/OrderController';
+import { OrderApp } from './business/app/OrderApp';
 
 @Module({
   imports: [
@@ -27,7 +30,8 @@ import { StockGatway } from './business/gatways/StockGateway';
      { name: Shop.name, schema: ShopSchema },
      { name: Product.name, schema: ProductSchema },
      { name: Client.name, schema: ClientSchema },
-     { name: Stock.name, schema: StockSchema }
+     { name: Stock.name, schema: StockSchema },
+     { name: Order.name, schema: OrderSchema }
    ])
   ],
   controllers: [
@@ -35,7 +39,8 @@ import { StockGatway } from './business/gatways/StockGateway';
     ProductController,
     ClientController,
     StockController,
-    ShopController
+    ShopController,
+    OrderController
   ],
   providers: [
     AuthApp,
@@ -43,6 +48,7 @@ import { StockGatway } from './business/gatways/StockGateway';
     ShopApp,
     ClientApp,
     StockApp,
+    OrderApp,
     HashService,
     JWTService,
     StockGatway

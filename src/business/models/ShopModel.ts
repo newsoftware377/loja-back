@@ -32,3 +32,12 @@ export class Shop {
 }
 
 export const ShopSchema = SchemaFactory.createForClass(Shop)
+
+ShopSchema.pre('save', function(next) {
+  const date = new Date().toISOString();
+  this.createdAt = date 
+  this.updatedAt = date
+  next()
+})
+
+

@@ -32,3 +32,12 @@ export class Client {
 }
 
 export const ClientSchema = SchemaFactory.createForClass(Client);
+
+ClientSchema.pre('save', function(next) {
+  const date = new Date().toISOString();
+  this.createdAt = date 
+  this.updatedAt = date
+  next()
+})
+
+

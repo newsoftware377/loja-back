@@ -32,3 +32,12 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.pre('save', function(next) {
+  const date = new Date().toISOString();
+  this.createdAt = date 
+  this.updatedAt = date
+  next()
+})
+
+

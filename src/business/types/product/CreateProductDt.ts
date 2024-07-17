@@ -13,4 +13,10 @@ export class CreateProductDto {
 
   @IsNumber()
   valorOriginal: number
+
+  @IsNumber()
+  valorCompra: number
+
+  @IsNumber()
+  codigoBarra: number
 }

@@ -22,3 +22,12 @@ export class Stock {
 }
 
 export const StockSchema = SchemaFactory.createForClass(Stock)
+
+StockSchema.pre('save', function(next) {
+  const date = new Date().toISOString();
+  this.createdAt = date 
+  this.updatedAt = date
+  next()
+})
+
+

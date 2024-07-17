@@ -257,3 +257,68 @@ Retorno
 
 ```
 Ele retorna todos os produtos que tiveram o estoque atualizado
+
+### Pedido
+
+- (Criar pedido) **POST** "pedido/loja"
+
+Enviar isso no *body*
+```json
+{
+  "produtos": [
+    { "id": "6695640530c2738d8cacb04d", "qtd": 20 }
+  ],
+  "pagamento": "pix",
+  "paraEntrega": false,
+  "acressimo": 10,
+  "desconto": 5
+}
+```
+
+Retorno 
+```json
+{
+  "criadoEm": "2024-07-17T17:04:27.314Z",
+  "lojaId": "loja-1-575b0c6fda653be0ef8a2b221089e35119ef867d",
+  "paraEntrega": false,
+  "id": "6697f99b7e510a04bb83d783",
+  "total": 305,
+  "produtos": [
+    {
+      "qtd": 20,
+      "nome": "Roupa 10",
+      "preco": 15,
+      "id": "6695640530c2738d8cacb04d"
+    }
+  ],
+  "pagamento": "pix",
+  "desconto": 5,
+  "acressimo": 10
+}
+```
+
+- (Listar pedidos) **GET** "pedido/listarTodos"
+
+Retorno
+```json
+[
+  {
+      "criadoEm": "2024-07-17T17:04:27.314Z",
+      "lojaId": "loja-1-575b0c6fda653be0ef8a2b221089e35119ef867d",
+      "paraEntrega": false,
+      "id": "6697f99b7e510a04bb83d783",
+      "total": 305,
+      "produtos": [
+        {
+          "qtd": 20,
+          "nome": "Roupa 10",
+          "preco": 15,
+          "id": "6695640530c2738d8cacb04d"
+        }
+      ],
+      "pagamento": "pix",
+      "desconto": 5,
+      "acressimo": 10
+  }
+]
+```
