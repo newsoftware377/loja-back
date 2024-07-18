@@ -49,6 +49,17 @@ export class OrderApp {
     return orders;
   };
 
+  public listOrdersTodayByList = async (shopIdLst: string[]) => {
+    const date = new Date();
+    date.setHours(0, 1);
+    const orders = await this.orderModel.find({
+      lojaId: { $in: shopIdLst },
+      createdAt: { $gte: date },
+    });
+
+    return orders;
+  };
+
   private calcTotalValue(dto: CreateOrderDto, products: ProductCrate[]) {
     const othersValues = new Decimal(dto.acressimo || 0).minus(
       new Decimal(dto.desconto || 0),
