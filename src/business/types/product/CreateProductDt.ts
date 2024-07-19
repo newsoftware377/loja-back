@@ -5,7 +5,7 @@ export class CreateProductDto {
   nome: string
 
   @IsString()
-  categoria: string
+  categoriaId: string
 
   @IsOptional()
   @IsNumber()

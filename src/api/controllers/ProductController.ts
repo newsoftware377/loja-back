@@ -7,6 +7,8 @@ import { AuthRequired } from "src/utils/decorators/AuthDecorator";
 import { Roles } from "src/utils/enums/Roles";
 import { mapToProductViewModel, ProductViewModel } from "../viewModels/ProductViewModel";
 import { UpdateProductDto } from "src/business/types/product/UpdateProductDto";
+import { CreateCategoryDto } from "src/business/types/product/CreateCategoryDto";
+import { mapToCategoryViewModel } from "../viewModels/CategoryViewModel";
 
 @Controller('produto')
 export class ProductController {
@@ -28,13 +30,41 @@ export class ProductController {
 
   @AuthRequired([Roles.shop])
   @Delete('loja/:id')
-  async deleteClient(@User() user: ShopViewModel, @Param('id') id: string): Promise<ProductViewModel> {
+  async deleteProduct(@User() user: ShopViewModel, @Param('id') id: string): Promise<ProductViewModel> {
     return this.app.deleteProduct(user, id).then(mapToProductViewModel)
   }
 
   @AuthRequired([Roles.shop])
   @Patch('loja/:id')
-  async updateClient(@User() user: ShopViewModel, @Body() body: UpdateProductDto, @Param('id') id: string) {
+  async updateProduct(@User() user: ShopViewModel, @Body() body: UpdateProductDto, @Param('id') id: string) {
     return this.app.updateProduct(user, body, id).then(mapToProductViewModel)
+  }
+
+  @AuthRequired([Roles.shop])
+  @Post('loja/categoria')
+  async createCategory(@User() user: ShopViewModel, @Body() body: CreateCategoryDto) {
+    return this.app.createCategory(user, body).then(mapToCategoryViewModel)
+  }
+
+  @AuthRequired([Roles.shop, Roles.user])
+  @Get('categoria/:lojaId')
+  async listCategories(@Param('lojaId') lojaId: string) {
+    return this.app.listCategories(lojaId).then(x => x.map(mapToCategoryViewModel))
+  }
+
+  @AuthRequired([Roles.shop])
+  @Patch('loja/categoria/:id')
+  async updateCategory(
+    @Body() body: CreateCategoryDto,
+    @User() user: ShopViewModel,
+    @Param('id') categoryId: string
+  ) {
+    return this.app.updateCategoryName(body, categoryId, user).then(mapToCategoryViewModel)
+  }
+
+  @AuthRequired([Roles.shop])
+  @Delete('loja/categoria/:id')
+  async deleteCategory(@Param('id') categoryId: string, @User() user: ShopViewModel) {
+    return this.app.deleteCategory(categoryId, user).then(mapToCategoryViewModel)
   }
 };

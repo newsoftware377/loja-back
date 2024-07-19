@@ -13,7 +13,7 @@ export class AuthController {
     private readonly app: AuthApp
   ) {}
   
-  @AuthRequired([Roles.admin])
+  //@AuthRequired([Roles.admin])
   @Post('admin/criarUsuario')
   async createUser(@Body() body: CreateUserDto): Promise<UserViewModel> {
     return this.app.createUser(body).then(x => mapToUserViewModel(x))

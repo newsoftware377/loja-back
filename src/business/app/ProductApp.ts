@@ -1,68 +1,108 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from '../types/product/CreateProductDt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../models/ProductModel';
 import { Model } from 'mongoose';
 import * as bwipjs from 'bwip-js';
-import { ProductWithBarCode } from '../types/product/Product';
+import { ProductWithBarCodeAndCategory } from '../types/product/Product';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 import { UpdateProductDto } from '../types/product/UpdateProductDto';
+import { Category } from '../models/CategoryModel';
+import { CreateCategoryDto } from '../types/product/CreateCategoryDto';
 
 @Injectable()
 export class ProductApp {
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
+    @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
   ) { }
 
   public createProduct = async (
     dto: CreateProductDto,
-    shop: ShopViewModel
-  ): Promise<ProductWithBarCode> => {
-
+    shop: ShopViewModel,
+  ): Promise<ProductWithBarCodeAndCategory> => {
     const product = await this.productModel.create({
       nome: dto.nome,
-      categoria: dto.categoria,
+      categoriaId: dto.categoriaId,
       valorAtual: dto.valorAtual || dto.valorOriginal,
       valorOriginal: dto.valorOriginal,
       valorCompra: dto.valorCompra,
       lojaId: shop.lojaId,
       empresaId: shop.empresaId,
-      codigoBarra: dto.codigoBarra
+      codigoBarra: dto.codigoBarra,
     });
 
     let code = '';
     try {
       code = (await this.generateBarCodeImg(String(dto.codigoBarra))) as string;
-    } catch(err) {
+    } catch (err) { }
+
+    const category = await this.categoryModel.findOne({
+      lojaId: shop.lojaId,
+      _id: dto.categoriaId,
+    });
+
+    if (!category) {
+      throw new NotFoundException('Categoria nao encontrada');
     }
 
     return {
       ...product.toJSON(),
       codigoBarraImg: code,
+      categoria: category.nome,
     };
   };
 
-  public listProducts = async (shop: ShopViewModel | UserViewModel, lojaId: string) => {
-   const products = await this.productModel.find({ lojaId, empresaId: shop.empresaId})
-   const promises = products.map(async (product) => ({
+  public listProducts = async (
+    shop: ShopViewModel | UserViewModel,
+    lojaId: string,
+  ) => {
+    const products = await this.productModel.find({
+      lojaId,
+      empresaId: shop.empresaId,
+    });
+    const promises = products.map(async (product) => ({
       ...product.toJSON(),
-      codigoBarraImg: await this.generateBarCodeImg(String(product.codigoBarra)) as string 
-   }))
+      codigoBarraImg: (await this.generateBarCodeImg(
+        String(product.codigoBarra),
+      )) as string,
+    }));
 
-   const productWithBarCode = await Promise.all(promises) 
+    const categories = await this.categoryModel.find({ lojaId });
+    const productWithBarCode = await Promise.all(promises);
 
-   return productWithBarCode
-  }
+    const categoriesHashMap = {};
+    const productWithCategory = productWithBarCode.map((product) => {
+      let category = '';
+      if (categoriesHashMap[product.categoriaId]) {
+        category = categoriesHashMap[product.categoriaId];
+      } else {
+        const category = categories.find(
+          (x) => x._id.toString() === product.categoriaId,
+        );
+        categoriesHashMap[product.categoriaId] = category;
+      }
+
+      return {
+        ...product,
+        categoria: category,
+      };
+    });
+
+    return productWithCategory;
+  };
 
   public deleteProduct = async (user: ShopViewModel, id: string) => {
-    const product = await this.productModel.findOneAndDelete(
-      {
-        _id: id,
-        empresaId: user.empresaId,
-        lojaId: user.lojaId,
-      }
-    );
+    const product = await this.productModel.findOneAndDelete({
+      _id: id,
+      empresaId: user.empresaId,
+      lojaId: user.lojaId,
+    });
 
     return product;
   };
@@ -76,16 +116,69 @@ export class ProductApp {
       lojaId: user.lojaId,
       empresaId: user.empresaId,
       _id: id,
-    }
+    };
     const product = await this.productModel.findOne(query);
 
-    const productUpdated = await this.productModel.findOneAndUpdate(query, {
-      ...product.toObject(),
-      ...dto
-    }, { new: true })
+    const productUpdated = await this.productModel.findOneAndUpdate(
+      query,
+      {
+        ...product.toObject(),
+        ...dto,
+      },
+      { new: true },
+    );
 
-    return productUpdated
+    return productUpdated;
   };
+
+  public async createCategory(user: ShopViewModel, dto: CreateCategoryDto) {
+    const category = await this.categoryModel.create({
+      nome: dto.nome,
+      lojaId: user.lojaId,
+    });
+
+    return category.toJSON();
+  }
+
+  public async listCategories(lojaId: string) {
+    const categories = await this.categoryModel.find({ lojaId });
+
+    return categories;
+  }
+
+  public async updateCategoryName(
+    dto: CreateCategoryDto,
+    categoryId: string,
+    user: ShopViewModel,
+  ) {
+    const category = await this.categoryModel.findOneAndUpdate(
+      { _id: categoryId, lojaId: user.lojaId },
+      { nome: dto.nome },
+      { new: true },
+    );
+
+    return category;
+  }
+
+  public async deleteCategory(categoryId: string, user: ShopViewModel) {
+    const products = await this.productModel.find({
+      lojaId: user.lojaId,
+      categoriaId: categoryId,
+    });
+
+    if (products.length) {
+      throw new BadRequestException(
+        'Essa categoria nao pode ser excluida pois tem produtos nela',
+      );
+    }
+
+    const category = await this.categoryModel.findOneAndDelete({
+      lojaId: user.lojaId,
+      _id: categoryId,
+    });
+
+    return category;
+  }
 
   private generateBarCodeImg(code: string) {
     return new Promise((resolve, reject) => {
@@ -97,7 +190,7 @@ export class ProductApp {
           height: 10,
           includetext: true,
           textxalign: 'center',
-          backgroundcolor: ''
+          backgroundcolor: '',
         },
         function(error, buffer) {
           if (error) {

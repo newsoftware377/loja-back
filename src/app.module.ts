@@ -21,6 +21,7 @@ import { StockGatway } from './business/gatways/StockGateway';
 import { Order, OrderSchema } from './business/models/OrderModel';
 import { OrderController } from './api/controllers/OrderController';
 import { OrderApp } from './business/app/OrderApp';
+import { Category, CategorySchema } from './business/models/CategoryModel';
 
 @Module({
   imports: [
@@ -29,9 +30,10 @@ import { OrderApp } from './business/app/OrderApp';
      { name: User.name, schema: UserSchema },
      { name: Shop.name, schema: ShopSchema },
      { name: Product.name, schema: ProductSchema },
+     { name: Category.name, schema: CategorySchema},
      { name: Client.name, schema: ClientSchema },
      { name: Stock.name, schema: StockSchema },
-     { name: Order.name, schema: OrderSchema }
+     { name: Order.name, schema: OrderSchema },
    ])
   ],
   controllers: [

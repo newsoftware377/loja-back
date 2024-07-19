@@ -9,7 +9,7 @@ export class Product {
   nome: string
 
   @Prop({ required: true, type: String})
-  categoria: string
+  categoriaId: string
 
   @Prop({ required: true, type: Number})
   valorAtual: number
