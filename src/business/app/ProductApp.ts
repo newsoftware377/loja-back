@@ -82,10 +82,11 @@ export class ProductApp {
       if (categoriesHashMap[product.categoriaId]) {
         category = categoriesHashMap[product.categoriaId];
       } else {
-        const category = categories.find(
+        const categoryMatch = categories.find(
           (x) => x._id.toString() === product.categoriaId,
         );
-        categoriesHashMap[product.categoriaId] = category;
+        categoriesHashMap[product.categoriaId] = categoryMatch?.nome;
+        category = categoryMatch?.nome
       }
 
       return {
