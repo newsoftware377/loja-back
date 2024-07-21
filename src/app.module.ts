@@ -34,7 +34,7 @@ import { Category, CategorySchema } from './business/models/CategoryModel';
      { name: Client.name, schema: ClientSchema },
      { name: Stock.name, schema: StockSchema },
      { name: Order.name, schema: OrderSchema },
-   ])
+   ]),
   ],
   controllers: [
     AuthController,

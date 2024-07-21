@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from '../types/order/CreateOrderDto';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,16 +7,25 @@ import { Model } from 'mongoose';
 import { Product } from '../models/ProductModel';
 import { ProductCrate } from '../types/order/Product';
 import Decimal from 'decimal.js';
+import { Stock } from '../models/StockModel';
+import { StockApp } from './StockApp';
 
 @Injectable()
 export class OrderApp {
   constructor(
     @InjectModel(Order.name) private readonly orderModel: Model<Order>,
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
+    private readonly stockApp: StockApp
   ) { }
 
   public createOrder = async (dto: CreateOrderDto, user: ShopViewModel) => {
     const products = await this.getProducts(dto, user);
+
+   // const { itens, comMudanca } = await this.stockApp.validateStock(dto.produtos) 
+
+   // if (!itens.length) {
+   //   throw new BadRequestException('Todos os produdos estão fora de estoque')
+   // }
 
     const order = await this.orderModel.create({
       total: this.calcTotalValue(dto, products),
@@ -40,10 +49,11 @@ export class OrderApp {
 
   public listOrdersToday = async (user: ShopViewModel) => {
     const date = new Date();
-    date.setHours(0, 1);
+    date.setHours(1, 0);
+
     const orders = await this.orderModel.find({
       lojaId: user.lojaId,
-      createdAt: { $gte: date },
+      createdAt: { $gt: date },
     });
 
     return orders;
@@ -102,7 +112,7 @@ export class OrderApp {
         qtd: qty,
         nome: product.nome,
         preco: product.valorAtual,
-        id: product._id.toString(),
+        produtoId: product._id.toString(),
       };
     });
   }

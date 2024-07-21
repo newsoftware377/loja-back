@@ -1,7 +1,7 @@
 import { Type } from "class-transformer"
 import { IsBoolean, IsOptional, IsPositive, IsString } from "class-validator"
 
-class CrateItem {
+export class CrateItem {
   @IsPositive()
   qtd: number
 

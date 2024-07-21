@@ -20,7 +20,7 @@ services:
     container_name: newsoftware-loja-db
     image: mongo
     volumes:
-      - newsoftware-loja-db:/app/data
+      - newsoftware-loja-db:/data/db
     networks:
       - newsoftware
 

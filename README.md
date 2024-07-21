@@ -314,7 +314,7 @@ Na conecção com o socket, precisa passar alguns paramentros
 - query
 ```json
 {
-    "id": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
+    "lojaIds": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
 }
 ```
 

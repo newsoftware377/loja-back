@@ -9,6 +9,7 @@ import { mapToProductViewModel, ProductViewModel } from "../viewModels/ProductVi
 import { UpdateProductDto } from "src/business/types/product/UpdateProductDto";
 import { CreateCategoryDto } from "src/business/types/product/CreateCategoryDto";
 import { mapToCategoryViewModel } from "../viewModels/CategoryViewModel";
+import { UserViewModel } from "../viewModels/UserViewModel";
 
 @Controller('produto')
 export class ProductController {
@@ -22,10 +23,16 @@ export class ProductController {
    return this.app.createProduct(body, shop).then(mapToProductViewModel)
   }
 
-  @AuthRequired([Roles.shop, Roles.user])
+  @AuthRequired([Roles.shop])
   @Get('lista/:lojaId')
   async listProducts(@User() shop: ShopViewModel, @Param('lojaId') lojaId: string) {
     return this.app.listProducts(shop, lojaId).then(x => x.map(mapToProductViewModel))
+  }
+
+  @AuthRequired([Roles.user])
+  @Get('listaDaEmpresa')
+  async listProductsByBusiness(@User() shop: UserViewModel) {
+    return this.app.listProductsByBusiness(shop)
   }
 
   @AuthRequired([Roles.shop])

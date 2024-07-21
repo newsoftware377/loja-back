@@ -7,6 +7,7 @@ export class Product {
   nome: string;
   qtd: number
   preco: number
+  produtoId: string
 }
 
 export type OrderDocument = HydratedDocument<Order>

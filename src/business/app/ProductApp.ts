@@ -5,15 +5,17 @@ import {
 } from '@nestjs/common';
 import { CreateProductDto } from '../types/product/CreateProductDt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Product } from '../models/ProductModel';
+import { Product, ProductDocument } from '../models/ProductModel';
 import { Model } from 'mongoose';
 import * as bwipjs from 'bwip-js';
 import { ProductWithBarCodeAndCategory } from '../types/product/Product';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 import { UpdateProductDto } from '../types/product/UpdateProductDto';
-import { Category } from '../models/CategoryModel';
+import { Category, CategoryDocument } from '../models/CategoryModel';
 import { CreateCategoryDto } from '../types/product/CreateCategoryDto';
+import { ListAllProducts } from '../types/product/ListAllProducts';
+import { mapToProductViewModel } from 'src/api/viewModels/ProductViewModel';
 
 @Injectable()
 export class ProductApp {
@@ -65,15 +67,43 @@ export class ProductApp {
     const products = await this.productModel.find({
       lojaId,
       empresaId: shop.empresaId,
-    });
+    }).then(product => product.map(x => x.toJSON()));
+    
+    const categories = await this.categoryModel.find({ lojaId });
+
+    const productWithCategory = await this.mapWithCategory(products, categories)
+    return productWithCategory;
+  };
+
+  public listProductsByBusiness = async (user: UserViewModel): Promise<any> => {
+    const categories = await this.categoryModel.find({ empresaId: user.empresaId })
+    const products = await this.productModel.aggregate([
+      { $match: { empresaId: user.empresaId }},
+      { $group: {
+         _id: "$lojaId",
+         products: { $push: '$$ROOT'}
+      }}
+    ])
+    
+    const promises = products.map(async item => {
+      const productsWithCategory = await this.mapWithCategory(item.products, categories)
+      return {
+        lojaId: item._id,
+        products: productsWithCategory.map(mapToProductViewModel)
+      }
+    })
+    
+    return Promise.all(promises)
+  }
+
+  private mapWithCategory = async (products: Product[], categories: CategoryDocument[]) => {
     const promises = products.map(async (product) => ({
-      ...product.toJSON(),
+      ...product,
       codigoBarraImg: (await this.generateBarCodeImg(
         String(product.codigoBarra),
       )) as string,
     }));
 
-    const categories = await this.categoryModel.find({ lojaId });
     const productWithBarCode = await Promise.all(promises);
 
     const categoriesHashMap = {};
@@ -95,8 +125,8 @@ export class ProductApp {
       };
     });
 
-    return productWithCategory;
-  };
+    return productWithCategory
+  }
 
   public deleteProduct = async (user: ShopViewModel, id: string) => {
     const product = await this.productModel.findOneAndDelete({
