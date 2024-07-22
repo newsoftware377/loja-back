@@ -57,6 +57,7 @@ export class StockGatway implements OnGatewayConnection, OnGatewayDisconnect {
   async notifyStockChanges(dto: StockViewModel[]) {
     const lojaId = dto[0].lojaId;
     const clients = this.clients[lojaId];
+    console.log(clients, lojaId, dto)
 
     this.server.to(clients).emit(this.STOCK_CHANGE_EVENT, dto);
   }

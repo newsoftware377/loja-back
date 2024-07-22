@@ -1,5 +1,6 @@
 import { Type } from "class-transformer"
-import { IsBoolean, IsOptional, IsPositive, IsString } from "class-validator"
+import { IsBoolean, IsEnum, IsOptional, IsPositive, IsString } from "class-validator"
+import { Payments } from "./OrderPayments"
 
 export class CrateItem {
   @IsPositive()
@@ -28,6 +29,7 @@ export class CreateOrderDto {
   @IsPositive()
   desconto?: number
 
+  @IsEnum(Payments, { message: `pagamento deve ser um dos seguintes valores: ${Object.values(Payments).toString()}`})
   @IsString()
-  pagamento: string
+  pagamento: Payments
 }

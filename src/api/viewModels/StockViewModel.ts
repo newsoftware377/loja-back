@@ -9,7 +9,7 @@ export interface StockViewModel {
 
 export const mapToStockViewModel = (stock: StockDocument):StockViewModel => ({
   qtd: stock.qtd,
-  id: stock.id,
+  id: stock.produtoId,
   atualizadoEm: stock.updatedAt,
   lojaId: stock.lojaId
 })

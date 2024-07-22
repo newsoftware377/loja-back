@@ -22,6 +22,8 @@ import { Order, OrderSchema } from './business/models/OrderModel';
 import { OrderController } from './api/controllers/OrderController';
 import { OrderApp } from './business/app/OrderApp';
 import { Category, CategorySchema } from './business/models/CategoryModel';
+import { ReportController } from './api/controllers/ReportController';
+import { ReportApp } from './business/app/ReportApp';
 
 @Module({
   imports: [
@@ -42,7 +44,8 @@ import { Category, CategorySchema } from './business/models/CategoryModel';
     ClientController,
     StockController,
     ShopController,
-    OrderController
+    OrderController,
+    ReportController
   ],
   providers: [
     AuthApp,
@@ -51,6 +54,7 @@ import { Category, CategorySchema } from './business/models/CategoryModel';
     ClientApp,
     StockApp,
     OrderApp,
+    ReportApp,
     HashService,
     JWTService,
     StockGatway

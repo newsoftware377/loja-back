@@ -5,7 +5,7 @@ import { AuthRequired } from "src/utils/decorators/AuthDecorator";
 import { Roles } from "src/utils/enums/Roles";
 import { OrderApp } from "src/business/app/OrderApp";
 import { CreateOrderDto } from "src/business/types/order/CreateOrderDto";
-import { mapToOrderViewModel, OrderViewModel } from "../viewModels/OrderViewModel";
+import { mapToCreateOrderViewModel, mapToOrderViewModel, OrderViewModel } from "../viewModels/OrderViewModel";
 
 @Controller('pedido')
 export class OrderController {
@@ -16,7 +16,7 @@ export class OrderController {
   @AuthRequired([Roles.shop])
   @Post('loja')
   async createOrder(@Body() body: CreateOrderDto, @User() user: ShopViewModel) {
-    return this.app.createOrder(body, user).then(mapToOrderViewModel)
+    return this.app.createOrder(body, user).then(mapToCreateOrderViewModel)
   }
   
   @AuthRequired([Roles.shop])

@@ -1,26 +1,26 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Shop } from "../models/ShopModel";
-import { Model } from "mongoose";
-import { CreateShopDto } from "../types/shop/CreateShopDto";
-import { HashService } from "../services/HashService";
-import { User } from "../models/UserModel";
-import { ShopViewModel } from "src/api/viewModels/ShopViewModel";
-import { UserViewModel } from "src/api/viewModels/UserViewModel";
-import { UpdateShopDto } from "../types/shop/UpdateShopDto";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Shop } from '../models/ShopModel';
+import { Model } from 'mongoose';
+import { CreateShopDto } from '../types/shop/CreateShopDto';
+import { HashService } from '../services/HashService';
+import { User } from '../models/UserModel';
+import { UserViewModel } from 'src/api/viewModels/UserViewModel';
+import { UpdateShopDto } from '../types/shop/UpdateShopDto';
+import { UpdateGoal } from '../types/shop/UpdateGoal';
 
 @Injectable()
 export class ShopApp {
   constructor(
     @InjectModel(Shop.name) private readonly shopModel: Model<Shop>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    private readonly hashService: HashService
-  ) {}
+    private readonly hashService: HashService,
+  ) { }
 
   public createShop = async (dto: CreateShopDto) => {
-    const user = await this.userModel.findOne({ empresaId: dto.empresaId })
+    const user = await this.userModel.findOne({ empresaId: dto.empresaId });
     if (!user) {
-      throw new NotFoundException('ID da empresa incorreto')
+      throw new NotFoundException('ID da empresa incorreto');
     }
 
     const lojaId = this.hashService.createId(dto.nome);
@@ -29,11 +29,11 @@ export class ShopApp {
       cnpj: dto.cnpj,
       nome: dto.nome,
       endereco: dto.endereco,
-      lojaId 
-    })
+      lojaId,
+    });
 
-    return shop
-  }
+    return shop;
+  };
 
   public listShops = async (user: UserViewModel) => {
     const shops = await this.shopModel.find({
@@ -49,20 +49,35 @@ export class ShopApp {
     return shop;
   };
 
-  public updateShop = async (
-    dto: UpdateShopDto,
-    id: string,
-  ) => {
+  public updateShop = async (dto: UpdateShopDto, id: string) => {
     const query = {
       _id: id,
-    }
+    };
     const shop = await this.shopModel.findOne(query);
 
-    const shopUpdated = await this.shopModel.findOneAndUpdate(query, {
-      ...shop.toObject(),
-      ...dto
-    }, { new: true })
+    const shopUpdated = await this.shopModel.findOneAndUpdate(
+      query,
+      {
+        ...shop.toObject(),
+        ...dto,
+      },
+      { new: true },
+    );
 
-    return shopUpdated
+    return shopUpdated;
   };
-} 
+
+  public updateGoal = async (
+    user: UserViewModel,
+    id: string,
+    dto: UpdateGoal,
+  ) => {
+    const shop = await this.shopModel.findOneAndUpdate(
+      { lojaId: id, empresaId: user.empresaId },
+      { metaDoMes: dto.metaDoMes },
+      { new: true },
+    );
+
+    return shop
+  };
+}

@@ -1,14 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateOrderDto } from '../types/order/CreateOrderDto';
+import { CrateItem, CreateOrderDto } from '../types/order/CreateOrderDto';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order } from '../models/OrderModel';
 import { Model } from 'mongoose';
 import { Product } from '../models/ProductModel';
 import { ProductCrate } from '../types/order/Product';
-import Decimal from 'decimal.js';
-import { Stock } from '../models/StockModel';
 import { StockApp } from './StockApp';
+import { calcTotalValue } from 'src/utils/calcTotal';
 
 @Injectable()
 export class OrderApp {
@@ -19,16 +18,16 @@ export class OrderApp {
   ) { }
 
   public createOrder = async (dto: CreateOrderDto, user: ShopViewModel) => {
-    const products = await this.getProducts(dto, user);
+    const { itens, comMudanca } = await this.stockApp.validateStock(dto.produtos, user.lojaId) 
 
-   // const { itens, comMudanca } = await this.stockApp.validateStock(dto.produtos) 
+    if (itens.every(x => x.qtd === 0)) {
+      throw new BadRequestException('Todos os produdos estão fora de estoque')
+    }
 
-   // if (!itens.length) {
-   //   throw new BadRequestException('Todos os produdos estão fora de estoque')
-   // }
+    const products = await this.getProducts(itens, user);
 
     const order = await this.orderModel.create({
-      total: this.calcTotalValue(dto, products),
+      total: calcTotalValue(dto, products),
       desconto: dto.desconto,
       acressimo: dto.acressimo,
       clienteId: dto.clienteId,
@@ -38,7 +37,8 @@ export class OrderApp {
       produtos: products,
     });
 
-    return order;
+    await this.stockApp.reduceStock(itens, user.lojaId)
+    return order 
   };
 
   public listOrders = async (user: ShopViewModel) => {
@@ -49,45 +49,49 @@ export class OrderApp {
 
   public listOrdersToday = async (user: ShopViewModel) => {
     const date = new Date();
-    date.setHours(1, 0);
+    date.setHours(0, 1);
 
     const orders = await this.orderModel.find({
       lojaId: user.lojaId,
-      createdAt: { $gt: date },
+      createdAt: { $gt: date.toISOString() } 
     });
 
     return orders;
   };
 
-  public listOrdersTodayByList = async (shopIdLst: string[]) => {
+  public listOrdersTodayByList = async (shopIdLst: string[]): Promise<{ _id: string, orders: Order[]}[]> => {
     const date = new Date();
     date.setHours(0, 1);
-    const orders = await this.orderModel.find({
-      lojaId: { $in: shopIdLst },
-      createdAt: { $gte: date },
-    });
+    const orders = await this.orderModel.aggregate([
+      { $match: {
+        lojaId: { $in: shopIdLst },
+        createdAt: { $gt: date.toISOString() } 
+      }},
+      { $group: {
+        _id: '$lojaId',
+        orders: { $push: "$$ROOT" }
+      }}
+    ]);
 
     return orders;
   };
 
-  private calcTotalValue(dto: CreateOrderDto, products: ProductCrate[]) {
-    const othersValues = new Decimal(dto.acressimo || 0).minus(
-      new Decimal(dto.desconto || 0),
-    );
+  public totalOnMonth = async (lojaId: string) => {
+    const date = new Date()
+    date.setDate(1)
+    date.setHours(0, 1)
 
-    const subtotal = products.reduce((acc, value) => {
-      const itemTotalValue = new Decimal(value.preco).times(value.qtd);
-      acc = acc.plus(itemTotalValue);
+    const ordersTotalSum = await this.orderModel.aggregate([
+      { $match: { lojaId, createdAt: { $gt: date.toISOString() } }},
+      { $group: { _id: null, sum: { $sum: '$total' }}},
+      { $project: { _id: 0, sum: 1} }
+    ]) 
 
-      return acc;
-    }, othersValues);
-    console.log(subtotal);
-
-    return subtotal.toNumber();
+    return ordersTotalSum
   }
 
   private async getProducts(
-    { produtos }: CreateOrderDto,
+    produtos: CrateItem[],
     user: ShopViewModel,
   ): Promise<ProductCrate[]> {
     const productsId = produtos.map((x) => x.id);

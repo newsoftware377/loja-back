@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 import { ShopApp } from './ShopApp';
 import { OrderApp } from './OrderApp';
-import { Resume } from '../types/report/Resume';
+import { ResumeToday } from '../types/report/ResumeToday';
+import { ResumeMonth } from '../types/report/ResumeMonth';
+import { calcTotalValue } from 'src/utils/calcTotal';
 
 @Injectable()
 export class ReportApp {
@@ -11,34 +13,48 @@ export class ReportApp {
     private readonly orderApp: OrderApp,
   ) { }
 
-  public searchResume = async (user: UserViewModel) => {
+  public searchResumeToday = async (user: UserViewModel): Promise<ResumeToday[]> => {
     const shops = await this.shopApp.listShops(user);
-    const orders = await this.orderApp.listOrdersTodayByList(
-      shops.map((x) => x._id.toString()),
+    const ordersGroup = await this.orderApp.listOrdersTodayByList(
+      shops.map((x) => x.lojaId),
     );
 
-    const resume = orders.reduce<Resume[]>((acc, order) => {
-      const orderIndexOf = acc.findIndex((r) => r.lojaId === order.lojaId);
-      if (orderIndexOf !== -1) {
-        const resumeOrder = acc[orderIndexOf];
-        const isLastSeller = new Date(order.createdAt) > new Date(resumeOrder.ultimaCompra);
-        const ultimaCompra = isLastSeller ? order.createdAt : resumeOrder.ultimaCompra;
+    const resume = ordersGroup.map<ResumeToday>(item => {
+      let total = 0;
+      let lastOrder = 0
 
-        acc[orderIndexOf] = {
-          totalNoDia: order.total + resumeOrder.totalNoDia,
-          lojaId: order.lojaId,
-          ultimaCompra,
-        };
-      } else {
-        acc.push({
-          ultimaCompra: order.createdAt,
-          lojaId: order.lojaId,
-          totalNoDia: order.total,
-        });
+      for (const order of item.orders) {
+        total += calcTotalValue(order, order.produtos)
+        const date = new Date(order.createdAt).valueOf()
+        if (lastOrder < date) {
+          lastOrder = date
+        }
       }
-      return acc;
-    }, [] as Resume[]);
+      return {
+        lojaId: item._id,
+        total: total,
+        ultimaCompra: new Date(lastOrder).toISOString()
+      }
+    }) 
 
     return resume;
   };
+
+  public searchResumeMonth = async (id: string): Promise<ResumeMonth> => {
+    const totalOnMonth = await this.orderApp.totalOnMonth(id)  
+    const total = totalOnMonth[0]?.sum
+
+    if (!total) {
+      return {
+        lojaId: id,
+        totalMes: 0
+      }
+    }
+
+   return {
+      totalMes: total,
+      lojaId: id
+    }
+  }
+
 }

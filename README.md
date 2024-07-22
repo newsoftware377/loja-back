@@ -292,7 +292,7 @@ Enviar isso no *body*, todos os campos são opcionais
 Enviar isso no *body*
 ```json
 [
-  { "id": "6691e7e53ce2d9cece459206", "qtd": 10}
+  { "produtoId": "6691e7e53ce2d9cece459206", "qtd": 10}
 ]
 ```
 ## 
@@ -341,6 +341,7 @@ Ele retorna todos os produtos que tiveram o estoque atualizado
 
 - (Criar pedido) **POST** "pedido/loja"
 
+pagamento tem que ser: pix , dinheiro ou cartao
 Enviar isso no *body*
 ```json
 {
@@ -377,6 +378,32 @@ Retorno
 ```
 
 - (Listar pedidos) **GET** "pedido/listarTodos"
+
+Retorno
+```json
+[
+  {
+      "criadoEm": "2024-07-17T17:04:27.314Z",
+      "lojaId": "loja-1-575b0c6fda653be0ef8a2b221089e35119ef867d",
+      "paraEntrega": false,
+      "id": "6697f99b7e510a04bb83d783",
+      "total": 305,
+      "produtos": [
+        {
+          "qtd": 20,
+          "nome": "Roupa 10",
+          "preco": 15,
+          "id": "6695640530c2738d8cacb04d"
+        }
+      ],
+      "pagamento": "pix",
+      "desconto": 5,
+      "acressimo": 10
+  }
+]
+```
+
+- (Listar pedidos de hoje) **GET** "pedido/listarDeHoje"
 
 Retorno
 ```json
