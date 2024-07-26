@@ -31,7 +31,7 @@ export class ShopController {
   @Get('usuario/lista')
   async listShops(@User() user: UserViewModel) {
     return this.app
-      .listShops(user)
+      .listShopsByUser(user)
       .then((x) => x.map(mapToShopWithAddressViewModel));
   }
 
@@ -47,13 +47,4 @@ export class ShopController {
     return this.app.updateShop(body, id).then(mapToShopWithAddressViewModel);
   }
 
-  @AuthRequired([Roles.user])
-  @Patch('usuario/mudarMeta/:lojaId')
-  async updateGoal(
-    @User() user: UserViewModel,
-    @Param('lojaId') id: string,
-    @Body() body: UpdateGoal,
-  ) {
-    return this.app.updateGoal(user, id, body).then(mapToShopViewModel);
-  }
 }

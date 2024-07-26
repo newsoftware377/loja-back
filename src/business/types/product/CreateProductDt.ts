@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
 
 export class CreateProductDto {
   @IsString()
@@ -19,4 +19,8 @@ export class CreateProductDto {
 
   @IsNumber()
   codigoBarra: number
+
+  @IsOptional()
+  @IsPositive()
+  qtdMinima: number
 }

@@ -35,7 +35,7 @@ export class ShopApp {
     return shop;
   };
 
-  public listShops = async (user: UserViewModel) => {
+  public listShopsByUser = async (user: UserViewModel) => {
     const shops = await this.shopModel.find({
       empresaId: user.empresaId,
     });
@@ -67,17 +67,7 @@ export class ShopApp {
     return shopUpdated;
   };
 
-  public updateGoal = async (
-    user: UserViewModel,
-    id: string,
-    dto: UpdateGoal,
-  ) => {
-    const shop = await this.shopModel.findOneAndUpdate(
-      { lojaId: id, empresaId: user.empresaId },
-      { metaDoMes: dto.metaDoMes },
-      { new: true },
-    );
-
-    return shop
-  };
+  public listAllShops = () => {
+    return this.shopModel.find()
+  }
 }

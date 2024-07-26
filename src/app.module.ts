@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AuthController } from './api/controllers/AuthController';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './business/models/UserModel';
@@ -24,6 +24,9 @@ import { OrderApp } from './business/app/OrderApp';
 import { Category, CategorySchema } from './business/models/CategoryModel';
 import { ReportController } from './api/controllers/ReportController';
 import { ReportApp } from './business/app/ReportApp';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ReportSchema, Report } from './business/models/ReportModel';
+import { ReportService } from './business/services/ReportService';
 
 @Module({
   imports: [
@@ -36,7 +39,9 @@ import { ReportApp } from './business/app/ReportApp';
      { name: Client.name, schema: ClientSchema },
      { name: Stock.name, schema: StockSchema },
      { name: Order.name, schema: OrderSchema },
+     { name: Report.name, schema: ReportSchema}
    ]),
+   ScheduleModule.forRoot()
   ],
   controllers: [
     AuthController,
@@ -57,7 +62,9 @@ import { ReportApp } from './business/app/ReportApp';
     ReportApp,
     HashService,
     JWTService,
-    StockGatway
+    StockGatway,
+    Logger,
+    ReportService
   ],
 })
 

@@ -90,6 +90,27 @@ export class OrderApp {
     return ordersTotalSum
   }
 
+  public listOrdersOnLastMonth = async (shopId: string) => {
+    const initialDate = new Date();
+    initialDate.setMonth(initialDate.getMonth() - 1)
+    initialDate.setDate(1)
+    initialDate.setHours(0, 0)
+
+    const endDate = new Date()
+    endDate.setDate(0)
+    endDate.setHours(23, 0)
+
+    const orders = await this.orderModel.find({
+      lojaId: shopId,
+      createdAt: { 
+        $gt: initialDate.toISOString(),
+        $lte: endDate.toISOString()
+      }
+    })
+
+    return orders
+  }
+
   private async getProducts(
     produtos: CrateItem[],
     user: ShopViewModel,

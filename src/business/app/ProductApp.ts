@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateProductDto } from '../types/product/CreateProductDt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Product, ProductDocument } from '../models/ProductModel';
+import { Product } from '../models/ProductModel';
 import { Model } from 'mongoose';
 import * as bwipjs from 'bwip-js';
 import { ProductWithBarCodeAndCategory } from '../types/product/Product';
@@ -14,7 +14,6 @@ import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 import { UpdateProductDto } from '../types/product/UpdateProductDto';
 import { Category, CategoryDocument } from '../models/CategoryModel';
 import { CreateCategoryDto } from '../types/product/CreateCategoryDto';
-import { ListAllProducts } from '../types/product/ListAllProducts';
 import { mapToProductViewModel } from 'src/api/viewModels/ProductViewModel';
 
 @Injectable()
@@ -37,6 +36,7 @@ export class ProductApp {
       lojaId: shop.lojaId,
       empresaId: shop.empresaId,
       codigoBarra: dto.codigoBarra,
+      qtdMinima: dto.qtdMinima
     });
 
     let code = '';

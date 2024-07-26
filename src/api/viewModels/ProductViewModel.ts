@@ -8,6 +8,7 @@ export interface ProductViewModel {
   valorOriginal: number
   codigoBarraImg: string,
   codigoBarra: number
+  qtdMinima: number
   id: string
 } 
 
@@ -19,5 +20,6 @@ export const mapToProductViewModel = (product: ProductWithBarCodeAndCategory): P
   valorOriginal: product.valorOriginal,
   codigoBarraImg: product.codigoBarraImg,
   codigoBarra: product.codigoBarra,
-  categoriaId: product.categoriaId
+  categoriaId: product.categoriaId,
+  qtdMinima: product.qtdMinima
 })
