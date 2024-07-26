@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../models/ProductModel';
 import { Model } from 'mongoose';
 import * as bwipjs from 'bwip-js';
-import { ProductWithBarCodeAndCategory } from '../types/product/Product';
+import { ProductWithCategory } from '../types/product/Product';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 import { UpdateProductDto } from '../types/product/UpdateProductDto';
@@ -26,7 +26,7 @@ export class ProductApp {
   public createProduct = async (
     dto: CreateProductDto,
     shop: ShopViewModel,
-  ): Promise<ProductWithBarCodeAndCategory> => {
+  ): Promise<ProductWithCategory> => {
     const product = await this.productModel.create({
       nome: dto.nome,
       categoriaId: dto.categoriaId,
@@ -39,11 +39,6 @@ export class ProductApp {
       qtdMinima: dto.qtdMinima
     });
 
-    let code = '';
-    try {
-      code = (await this.generateBarCodeImg(String(dto.codigoBarra))) as string;
-    } catch (err) { }
-
     const category = await this.categoryModel.findOne({
       lojaId: shop.lojaId,
       _id: dto.categoriaId,
@@ -55,7 +50,6 @@ export class ProductApp {
 
     return {
       ...product.toJSON(),
-      codigoBarraImg: code,
       categoria: category.nome,
     };
   };
@@ -97,17 +91,8 @@ export class ProductApp {
   }
 
   private mapWithCategory = async (products: Product[], categories: CategoryDocument[]) => {
-    const promises = products.map(async (product) => ({
-      ...product,
-      codigoBarraImg: (await this.generateBarCodeImg(
-        String(product.codigoBarra),
-      )) as string,
-    }));
-
-    const productWithBarCode = await Promise.all(promises);
-
     const categoriesHashMap = {};
-    const productWithCategory = productWithBarCode.map((product) => {
+    const productWithCategory = products.map((product) => {
       let category = '';
       if (categoriesHashMap[product.categoriaId]) {
         category = categoriesHashMap[product.categoriaId];
@@ -211,27 +196,4 @@ export class ProductApp {
     return category;
   }
 
-  private generateBarCodeImg(code: string) {
-    return new Promise((resolve, reject) => {
-      bwipjs.toBuffer(
-        {
-          bcid: 'upca',
-          text: code,
-          scale: 3,
-          height: 10,
-          includetext: true,
-          textxalign: 'center',
-          backgroundcolor: '',
-        },
-        function(error, buffer) {
-          if (error) {
-            reject(error);
-          } else {
-            let imageBase64 = `data:image/png;base64,${buffer.toString('base64')}`;
-            resolve(imageBase64);
-          }
-        },
-      );
-    });
-  }
 }

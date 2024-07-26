@@ -1,4 +1,4 @@
-import { ProductWithBarCodeAndCategory } from "src/business/types/product/Product"
+import { ProductWithCategory } from "src/business/types/product/Product"
 
 export interface ProductViewModel {
   nome: string
@@ -6,19 +6,17 @@ export interface ProductViewModel {
   categoriaId: string
   valorAtual: number
   valorOriginal: number
-  codigoBarraImg: string,
   codigoBarra: number
   qtdMinima: number
   id: string
 } 
 
-export const mapToProductViewModel = (product: ProductWithBarCodeAndCategory): ProductViewModel => ({
+export const mapToProductViewModel = (product: ProductWithCategory): ProductViewModel => ({
   nome: product.nome,
   categoria: product.categoria,
   valorAtual: product.valorAtual,
   id: product._id.toString(),
   valorOriginal: product.valorOriginal,
-  codigoBarraImg: product.codigoBarraImg,
   codigoBarra: product.codigoBarra,
   categoriaId: product.categoriaId,
   qtdMinima: product.qtdMinima
