@@ -9,19 +9,18 @@ import {
 } from '@nestjs/common';
 import { ShopApp } from 'src/business/app/ShopApp';
 import { CreateShopDto } from 'src/business/types/shop/CreateShopDto';
-import { mapToShopViewModel, mapToShopWithAddressViewModel } from '../viewModels/ShopViewModel';
+import { mapToShopWithAddressViewModel } from '../viewModels/ShopViewModel';
 import { AuthRequired } from 'src/utils/decorators/AuthDecorator';
 import { Roles } from 'src/utils/enums/Roles';
 import { User } from 'src/utils/decorators/User';
 import { UserViewModel } from '../viewModels/UserViewModel';
 import { UpdateShopDto } from 'src/business/types/shop/UpdateShopDto';
-import { UpdateGoal } from 'src/business/types/shop/UpdateGoal';
 
 @Controller('loja')
 export class ShopController {
   constructor(private readonly app: ShopApp) { }
 
-  //@AuthRequired([Roles.admin])
+  @AuthRequired([Roles.admin])
   @Post('admin/criarLoja')
   async createShop(@Body() body: CreateShopDto) {
     return this.app.createShop(body).then(mapToShopWithAddressViewModel);

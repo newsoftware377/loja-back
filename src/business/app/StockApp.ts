@@ -54,10 +54,12 @@ export class StockApp {
           qty = product.qtd;
         }
 
-        acc.itens.push({
-          id: product.id,
-          qtd: qty,
-        });
+        if (qty > 0) {
+          acc.itens.push({
+            id: product.id,
+            qtd: qty,
+          });
+        }
 
         if (qty !== product.qtd) {
           acc.comMudanca.push({

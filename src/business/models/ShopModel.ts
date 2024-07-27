@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from 'mongoose'
 import { AddressSchemaClass } from "./shared/AddressSchema";
+import { Roles } from "src/utils/enums/Roles";
 
 export type ShopDocumnet = HydratedDocument<Shop>
 
@@ -29,6 +30,9 @@ export class Shop {
 
   @Prop({ type: String})
   updatedAt: string
+
+  @Prop({ required: true, default: Roles.shop, enum: Object.values(Roles), type: String })
+  cargo: Roles
 }
 
 export const ShopSchema = SchemaFactory.createForClass(Shop)

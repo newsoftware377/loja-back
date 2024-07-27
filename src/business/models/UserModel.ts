@@ -21,7 +21,7 @@ export class User {
   @Prop({ required: true, unique: true, type: String})
   empresaId: string
 
-  @Prop({ required: true, default: 'user'})
+  @Prop({ required: true, default: Roles.user, enum: Object.values(Roles), type: String })
   cargo: Roles
 
   @Prop({ type: String})

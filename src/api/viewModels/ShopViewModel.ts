@@ -1,5 +1,6 @@
 import { ShopDocumnet } from "src/business/models/ShopModel"
 import { Address } from "src/business/types/shared/Address"
+import { Roles } from "src/utils/enums/Roles"
 
 export interface ShopViewModel {
  nome: string
@@ -8,6 +9,7 @@ export interface ShopViewModel {
  id: string
  cnpj: string
  metaDoMes: number
+ cargo: Roles
 } 
 
 export interface ShopWithAddressViewModel extends ShopViewModel {
@@ -20,7 +22,8 @@ export const mapToShopViewModel = (shop: ShopDocumnet): ShopViewModel => ({
   cnpj: shop.cnpj,
   lojaId: shop.lojaId,
   id: shop._id.toString(),
-  metaDoMes: shop.metaDoMes
+  metaDoMes: shop.metaDoMes,
+  cargo: shop.cargo
 })
 
 export const mapToShopWithAddressViewModel = (shop: ShopDocumnet): ShopWithAddressViewModel => ({
