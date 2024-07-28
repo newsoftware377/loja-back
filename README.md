@@ -44,7 +44,7 @@ Enviar isso no *body*
 }
 ```
 
-- (Listar categorias) **GET** 'produto/categoria/:lojaId'
+- (Listar categorias) **GET** 'produto/categoria/loja/:lojaId'
 
 Enviar o *Id da loja* como parâmetro
 

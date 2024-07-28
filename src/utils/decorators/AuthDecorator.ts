@@ -32,7 +32,6 @@ class AuthInterceptor implements NestInterceptor {
     }
 
     const roles = this.reflector.get<Roles[]>('required-role', ctx.getHandler())
-    console.log(user)
 
     if (!roles?.includes(user?.cargo)) {
       response.status(401).send({ message: 'Voce nao tem acesso para esse recurso' });
