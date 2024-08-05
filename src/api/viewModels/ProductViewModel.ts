@@ -19,5 +19,5 @@ export const mapToProductViewModel = (product: ProductWithCategory): ProductView
   valorOriginal: product.valorOriginal,
   codigoBarra: product.codigoBarra,
   categoriaId: product.categoriaId,
-  qtdMinima: product.qtdMinima
+  qtdMinima: product.qtdMinima || 0
 })

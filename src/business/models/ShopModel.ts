@@ -22,9 +22,6 @@ export class Shop {
   @Prop({ required: true, type: String})
   cnpj: string
 
-  @Prop({ type: Number, default: 0})
-  metaDoMes?: number
-
   @Prop({ type: String})
   createdAt: string
 

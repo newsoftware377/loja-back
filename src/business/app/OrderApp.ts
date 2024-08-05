@@ -76,7 +76,7 @@ export class OrderApp {
     return orders;
   };
 
-  public totalOnMonth = async (lojaId: string) => {
+  public totalOnMonthUntilNow = async (lojaId: string) => {
     const date = new Date()
     date.setDate(1)
     date.setHours(0, 1)

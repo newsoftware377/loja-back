@@ -5,6 +5,7 @@ import { UserViewModel } from "../viewModels/UserViewModel";
 import { AuthRequired } from "src/utils/decorators/AuthDecorator";
 import { Roles } from "src/utils/enums/Roles";
 import { UpdateGoal } from "src/business/types/shop/UpdateGoal";
+import { mapToReportViewModel } from "../viewModels/ReportViewModel";
 
 @Controller('relatorio')
 export class ReportController {
@@ -21,7 +22,7 @@ export class ReportController {
   @AuthRequired([Roles.user])
   @Get('usuario/resumoDoMes/:lojaId')
   async searchResumeMonth(@Param('lojaId') id: string) {
-    return this.app.searchResumeMonth(id)
+    return this.app.searchResumeMonth(id).then(mapToReportViewModel)
   }
 
   @AuthRequired([Roles.user])

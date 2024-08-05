@@ -7,7 +7,6 @@ import { HashService } from '../services/HashService';
 import { User } from '../models/UserModel';
 import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 import { UpdateShopDto } from '../types/shop/UpdateShopDto';
-import { UpdateGoal } from '../types/shop/UpdateGoal';
 
 @Injectable()
 export class ShopApp {
@@ -19,6 +18,7 @@ export class ShopApp {
 
   public createShop = async (dto: CreateShopDto) => {
     const user = await this.userModel.findOne({ empresaId: dto.empresaId });
+
     if (!user) {
       throw new NotFoundException('ID da empresa incorreto');
     }

@@ -8,7 +8,6 @@ export interface ShopViewModel {
  empresaId: string
  id: string
  cnpj: string
- metaDoMes: number
  cargo: Roles
 } 
 
@@ -22,7 +21,6 @@ export const mapToShopViewModel = (shop: ShopDocumnet): ShopViewModel => ({
   cnpj: shop.cnpj,
   lojaId: shop.lojaId,
   id: shop._id.toString(),
-  metaDoMes: shop.metaDoMes,
   cargo: shop.cargo
 })
 

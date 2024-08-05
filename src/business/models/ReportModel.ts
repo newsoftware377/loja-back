@@ -6,6 +6,7 @@ class ProductReport {
   qtd: number
   nome: string;
   produtoId: string
+  preco: number
 }
 
 export type ReportDocument = HydratedDocument<Report>
@@ -29,6 +30,9 @@ export class Report {
 
   @Prop({ type: String, required: true})
   lojaId: string
+
+  @Prop({ type: Number})
+  totalMes: number
 }
 
 export const ReportSchema = SchemaFactory.createForClass(Report)
