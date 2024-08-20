@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ShopApp } from 'src/business/app/ShopApp';
 import { CreateShopDto } from 'src/business/types/shop/CreateShopDto';
-import { mapToShopWithAddressViewModel } from '../viewModels/ShopViewModel';
+import { mapToShopViewModel, mapToShopWithAddressViewModel } from '../viewModels/ShopViewModel';
 import { AuthRequired } from 'src/utils/decorators/AuthDecorator';
 import { Roles } from 'src/utils/enums/Roles';
 import { User } from 'src/utils/decorators/User';
@@ -32,6 +32,12 @@ export class ShopController {
     return this.app
       .listShopsByUser(user)
       .then((x) => x.map(mapToShopWithAddressViewModel));
+  }
+
+  @AuthRequired([Roles.admin])
+  @Get('admin/lista')
+  async listAllShops() {
+    return this.app.listAllShops().then(x => x.map(mapToShopViewModel))
   }
 
   @AuthRequired([Roles.admin])

@@ -28,13 +28,13 @@ class AuthInterceptor implements NestInterceptor {
     try {
       user = await this.jwtService.decodeToken(token) as UserViewModel;
     } catch {
-      response.status(401).send({ message: 'Token invalido' });
+      response.status(401).send({ message: 'Token invalido', code: 401 });
     }
 
     const roles = this.reflector.get<Roles[]>('required-role', ctx.getHandler())
 
     if (!roles?.includes(user?.cargo)) {
-      response.status(401).send({ message: 'Voce nao tem acesso para esse recurso' });
+      response.status(401).send({ message: 'Voce nao tem acesso para esse recurso', code: 401 });
     }
 
     return next.handle();
