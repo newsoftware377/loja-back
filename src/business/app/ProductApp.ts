@@ -15,6 +15,7 @@ import { UpdateProductDto } from '../types/product/UpdateProductDto';
 import { Category, CategoryDocument } from '../models/CategoryModel';
 import { CreateCategoryDto } from '../types/product/CreateCategoryDto';
 import { mapToProductViewModel } from 'src/api/viewModels/ProductViewModel';
+import { ListProductsDto } from '../types/product/ListProductsDto';
 
 @Injectable()
 export class ProductApp {
@@ -36,7 +37,7 @@ export class ProductApp {
       lojaId: shop.lojaId,
       empresaId: shop.empresaId,
       codigoBarra: dto.codigoBarra,
-      qtdMinima: dto.qtdMinima
+      qtdMinima: dto.qtdMinima,
     });
 
     const category = await this.categoryModel.findOne({
@@ -57,40 +58,73 @@ export class ProductApp {
   public listProducts = async (
     shop: ShopViewModel | UserViewModel,
     lojaId: string,
+    params: ListProductsDto,
   ) => {
-    const products = await this.productModel.find({
-      lojaId,
-      empresaId: shop.empresaId,
-    }).then(product => product.map(x => x.toJSON()));
-    
+    const filters = {};
+
+    if (params.termo) {
+      const termFilter: any[] = [
+        { nome: { $regex: `.*${params.termo}.*`, $options: 'i'  }}
+      ];
+
+      if (!isNaN(Number(params.termo))) {
+        termFilter.unshift(
+          { codigoBarra: params.termo },
+        )
+      }
+
+      filters['$or'] = termFilter
+    }
+
+    const products = await this.productModel
+      .find({
+        lojaId,
+        empresaId: shop.empresaId,
+        ...filters
+      })
+      .then((product) => product.map((x) => x.toJSON()));
+
     const categories = await this.categoryModel.find({ lojaId });
 
-    const productWithCategory = await this.mapWithCategory(products, categories)
+    const productWithCategory = await this.mapWithCategory(
+      products,
+      categories,
+    );
     return productWithCategory;
   };
 
   public listProductsByBusiness = async (user: UserViewModel): Promise<any> => {
-    const categories = await this.categoryModel.find({ empresaId: user.empresaId })
+    const categories = await this.categoryModel.find({
+      empresaId: user.empresaId,
+    });
     const products = await this.productModel.aggregate([
-      { $match: { empresaId: user.empresaId }},
-      { $group: {
-         _id: "$lojaId",
-         products: { $push: '$$ROOT'}
-      }}
-    ])
-    
-    const promises = products.map(async item => {
-      const productsWithCategory = await this.mapWithCategory(item.products, categories)
+      { $match: { empresaId: user.empresaId } },
+      {
+        $group: {
+          _id: '$lojaId',
+          products: { $push: '$$ROOT' },
+        },
+      },
+    ]);
+
+    const promises = products.map(async (item) => {
+      const productsWithCategory = await this.mapWithCategory(
+        item.products,
+        categories,
+      );
       return {
         lojaId: item._id,
-        products: productsWithCategory.map(mapToProductViewModel)
-      }
-    })
-    
-    return Promise.all(promises)
-  }
+        products: productsWithCategory.map(mapToProductViewModel),
+      };
+    });
 
-  private mapWithCategory = async (products: Product[], categories: CategoryDocument[]) => {
+    return Promise.all(promises);
+  };
+
+  private mapWithCategory = async (
+    products: Product[],
+    categories: CategoryDocument[],
+  ) => {
     const categoriesHashMap = {};
     const productWithCategory = products.map((product) => {
       let category = '';
@@ -101,7 +135,7 @@ export class ProductApp {
           (x) => x._id.toString() === product.categoriaId,
         );
         categoriesHashMap[product.categoriaId] = categoryMatch?.nome;
-        category = categoryMatch?.nome
+        category = categoryMatch?.nome;
       }
 
       return {
@@ -110,8 +144,8 @@ export class ProductApp {
       };
     });
 
-    return productWithCategory
-  }
+    return productWithCategory;
+  };
 
   public deleteProduct = async (user: ShopViewModel, id: string) => {
     const product = await this.productModel.findOneAndDelete({
@@ -195,5 +229,4 @@ export class ProductApp {
 
     return category;
   }
-
 }

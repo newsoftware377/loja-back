@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { ProductApp } from "src/business/app/ProductApp";
 import { CreateProductDto } from "src/business/types/product/CreateProductDt";
 import { User } from "src/utils/decorators/User";
@@ -10,6 +10,7 @@ import { UpdateProductDto } from "src/business/types/product/UpdateProductDto";
 import { CreateCategoryDto } from "src/business/types/product/CreateCategoryDto";
 import { mapToCategoryViewModel } from "../viewModels/CategoryViewModel";
 import { UserViewModel } from "../viewModels/UserViewModel";
+import { ListProductsDto } from "src/business/types/product/ListProductsDto";
 
 @Controller('produto')
 export class ProductController {
@@ -25,8 +26,8 @@ export class ProductController {
 
   @AuthRequired([Roles.shop])
   @Get('lista/:lojaId')
-  async listProducts(@User() shop: ShopViewModel, @Param('lojaId') lojaId: string) {
-    return this.app.listProducts(shop, lojaId).then(x => x.map(mapToProductViewModel))
+  async listProducts(@User() shop: ShopViewModel, @Param('lojaId') lojaId: string, @Query() params: ListProductsDto ) {
+    return this.app.listProducts(shop, lojaId, params).then(x => x.map(mapToProductViewModel))
   }
 
   @AuthRequired([Roles.user])
