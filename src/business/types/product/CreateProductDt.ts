@@ -24,3 +24,4 @@ export class CreateProductDto {
   @IsPositive()
   qtdMinima: number
 }
+

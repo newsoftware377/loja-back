@@ -85,10 +85,9 @@ export class ReportApp {
       lojaId: shopId,
       concluido: false
     })
-    const totalUntilNow = await this.orderApp.totalOnMonthUntilNow?.[0]?.sum || 0
-    console.log(totalUntilNow)
-    console.log(currentReport)
 
+    const totalUntilNow = (await this.orderApp.totalOnMonthUntilNow(shopId))?.[0]?.sum || 0
+  
     return {
       ...reportOnLastMonth?.toJSON(),
       metaAtual: currentReport.meta,

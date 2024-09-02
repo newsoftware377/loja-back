@@ -1,11 +1,12 @@
 import { Type } from "class-transformer"
-import { IsBoolean, IsEnum, IsOptional, IsPositive, IsString } from "class-validator"
+import { IsBoolean, IsEnum, IsMongoId, IsOptional, IsPositive, IsString } from "class-validator"
 import { Payments } from "./OrderPayments"
 
 export class CrateItem {
   @IsPositive()
   qtd: number
 
+  @IsMongoId({ message: "Deve ser um id válido"})
   @IsString()
   id: string
 }
@@ -33,3 +34,4 @@ export class CreateOrderDto {
   @IsString()
   pagamento: Payments
 }
+
