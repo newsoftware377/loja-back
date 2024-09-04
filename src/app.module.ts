@@ -27,6 +27,8 @@ import { ReportApp } from './business/app/ReportApp';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ReportSchema, Report } from './business/models/ReportModel';
 import { ReportService } from './business/services/ReportService';
+import { UserController } from './api/controllers/UserController';
+import { UserApp } from './business/app/UserApp';
 
 @Module({
   imports: [
@@ -50,7 +52,8 @@ import { ReportService } from './business/services/ReportService';
     StockController,
     ShopController,
     OrderController,
-    ReportController
+    ReportController,
+    UserController
   ],
   providers: [
     AuthApp,
@@ -59,6 +62,7 @@ import { ReportService } from './business/services/ReportService';
     ClientApp,
     StockApp,
     OrderApp,
+    UserApp,
     ReportApp,
     HashService,
     JWTService,

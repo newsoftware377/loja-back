@@ -46,8 +46,8 @@ export class ShopController {
     return this.app.deletShop(id).then(mapToShopWithAddressViewModel);
   }
 
-  @AuthRequired([Roles.admin])
-  @Patch('admin/:id')
+  @AuthRequired([Roles.admin, Roles.user])
+  @Patch('/:id')
   async updateClient(@Body() body: UpdateShopDto, @Param('id') id: string) {
     return this.app.updateShop(body, id).then(mapToShopWithAddressViewModel);
   }
