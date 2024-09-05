@@ -174,9 +174,9 @@ Enviar como parametro o ***Id da loja***
 
 Enviar como parametro o ***Id da loja***
 
-- (Editar o produto) **PATCH** "produto/loja/:lojaId"
+- (Editar o produto) **PATCH** "produto/loja/:produto_id"
 
-Enviar como parametro o ***Id da loja***
+Enviar como parametro o ***Id do produto***
 
 Enviar isso no *body*, todos os campos são opcionais
 ```json
