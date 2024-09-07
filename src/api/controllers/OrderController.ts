@@ -28,6 +28,6 @@ export class OrderController {
   @AuthRequired([Roles.shop])
   @Get('loja/listarDeHoje')
   async listOrdersToday(@User() user: ShopViewModel):Promise<OrderViewModel[]> {
-    return this.app.listOrdersToday(user).then(x => x.map(mapToOrderViewModel))
+    return this.app.listOrdersToday(user.lojaId).then(x => x.map(mapToOrderViewModel))
   }
 }
