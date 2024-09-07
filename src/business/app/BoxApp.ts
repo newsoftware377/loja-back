@@ -6,6 +6,7 @@ import { Box } from '../models/BoxModel';
 import { Model } from 'mongoose';
 import { OrderApp } from './OrderApp';
 import { Payments } from '../types/order/OrderPayments';
+import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 
 @Injectable()
 export class BoxApp {
@@ -51,6 +52,15 @@ export class BoxApp {
     }
 
     return box;
+  }
+
+  public list = async (shopId: string, user: UserViewModel) => {
+    const boxes = await this.boxModel.find({
+      lojaId: shopId,
+      empresaId: user.empresaId
+    }) 
+
+    return boxes.map(x => x.toObject())
   }
 
   private getResumeDay = async (shopId: string) => {
