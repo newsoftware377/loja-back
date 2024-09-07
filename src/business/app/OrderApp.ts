@@ -8,6 +8,7 @@ import { Product } from '../models/ProductModel';
 import { ProductCrate } from '../types/order/Product';
 import { StockApp } from './StockApp';
 import { calcTotalValue } from 'src/utils/calcTotal';
+import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 
 @Injectable()
 export class OrderApp {
@@ -54,12 +55,12 @@ export class OrderApp {
     return orders;
   };
 
-  public listOrdersToday = async (user: ShopViewModel) => {
+  public listOrdersToday = async (shopId: string) => {
     const date = new Date();
     date.setHours(0, 1);
 
     const orders = await this.orderModel.find({
-      lojaId: user.lojaId,
+      lojaId: shopId,
       createdAt: { $gt: date.toISOString() } 
     });
 

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { OpenBoxDto } from '../types/box/OpenBoxDto';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { InjectModel } from '@nestjs/mongoose';
@@ -17,6 +17,15 @@ export class BoxApp {
 
   public async open(dto: OpenBoxDto, user: ShopViewModel) {
     const now = new Date();
+    const boxOpened = await this.boxModel.findOne({
+      empresaId: user.empresaId,
+      lojaId: user.lojaId,
+      aberto: true
+    })
+
+    if (boxOpened) {
+      throw new BadRequestException('Já existe um caixa aberto, fehce-o antes de abrir outro')
+    }
 
     const box = await this.boxModel.create({
       lojaId: user.lojaId,
@@ -60,7 +69,17 @@ export class BoxApp {
       empresaId: user.empresaId
     }) 
 
-    return boxes.map(x => x.toObject())
+    const ordersToday = await this.orderApp.listOrdersToday(shopId)
+    const totalToday = ordersToday.reduce((acc, order) => acc += order.total, 0)
+
+    return boxes.map(x => {
+      const boxObj = x.toObject()
+
+      return {
+        ...boxObj,
+        valorFinal: boxObj.aberto ? totalToday : boxObj.valorFinal  
+      }
+    })
   }
 
   private getResumeDay = async (shopId: string) => {
