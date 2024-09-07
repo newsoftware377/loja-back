@@ -24,6 +24,13 @@ export class OrderApp {
       throw new BadRequestException('Todos os produdos estão fora de estoque')
     }
 
+    if (comMudanca.length) {
+      throw new BadRequestException({
+        message: "Alguns produtos não tem o estoque solicitado",
+        data: comMudanca
+      })
+    }
+
     const products = await this.getProducts(itens, user);
 
     const order = await this.orderModel.create({
@@ -109,6 +116,18 @@ export class OrderApp {
     })
 
     return orders
+  }
+
+  public getOrdersToday = async (shopId: string) => {
+    const date = new Date()
+    date.setHours(0,0)
+
+    return this.orderModel.find({
+      lojaId: shopId,
+      createdAt: {
+        $gte: date.toISOString()
+      }
+    })
   }
 
   private async getProducts(

@@ -23,7 +23,11 @@ export class ShopApp {
       throw new NotFoundException('ID da empresa incorreto');
     }
 
-    const lojaId = this.hashService.createId(dto.nome);
+    const shopCount = await this.shopModel.countDocuments({
+      empresaId: dto.empresaId,
+    });
+
+    const lojaId = this.hashService.createIdToShop(shopCount);
     const shop = await this.shopModel.create({
       empresaId: dto.empresaId,
       cnpj: dto.cnpj,
@@ -68,6 +72,6 @@ export class ShopApp {
   };
 
   public listAllShops = () => {
-    return this.shopModel.find()
-  }
+    return this.shopModel.find();
+  };
 }

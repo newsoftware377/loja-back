@@ -29,6 +29,9 @@ import { ReportSchema, Report } from './business/models/ReportModel';
 import { ReportService } from './business/services/ReportService';
 import { UserController } from './api/controllers/UserController';
 import { UserApp } from './business/app/UserApp';
+import { Box, BoxSchema } from './business/models/BoxModel';
+import { BoxController } from './api/controllers/BoxModel';
+import { BoxApp } from './business/app/BoxApp';
 
 @Module({
   imports: [
@@ -41,7 +44,8 @@ import { UserApp } from './business/app/UserApp';
      { name: Client.name, schema: ClientSchema },
      { name: Stock.name, schema: StockSchema },
      { name: Order.name, schema: OrderSchema },
-     { name: Report.name, schema: ReportSchema}
+     { name: Report.name, schema: ReportSchema },
+     { name: Box.name, schema: BoxSchema }
    ]),
    ScheduleModule.forRoot()
   ],
@@ -53,7 +57,8 @@ import { UserApp } from './business/app/UserApp';
     ShopController,
     OrderController,
     ReportController,
-    UserController
+    UserController,
+    BoxController
   ],
   providers: [
     AuthApp,
@@ -64,6 +69,7 @@ import { UserApp } from './business/app/UserApp';
     OrderApp,
     UserApp,
     ReportApp,
+    BoxApp,
     HashService,
     JWTService,
     StockGatway,

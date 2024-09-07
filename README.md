@@ -434,3 +434,17 @@ Retorno
   }
 ]
 ```
+
+### Caixa
+
+- (Abrir o  caixa) **POST** "caixa/abrir"
+
+Enviar isso no *body*
+```json
+{
+    "valorInicial": 30
+}
+```
+
+- (Fechar o caixa) **PATCH** "caixa/fechar"
+

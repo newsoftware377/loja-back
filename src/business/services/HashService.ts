@@ -3,9 +3,16 @@ import * as crypto from 'crypto'
 
 @Injectable()
 export class HashService {
-  public createId = (name: string) => {
+  public createIdToShop = (count: number) => {
     const hash = crypto.randomBytes(20).toString('hex')
-    const standardName = name.toLowerCase().replace(' ', '-')
+    const standardName = `loja-${count+1}`
+
+    return `${standardName}-${hash}`;
+  }
+
+  public createIdToUser = (name: string) => {
+    const hash = crypto.randomBytes(20).toString('hex')
+    const standardName = decodeURI(name.replaceAll('', '-'))
 
     return `${standardName}-${hash}`;
   }

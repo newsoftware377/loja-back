@@ -26,7 +26,8 @@ export class AuthApp {
     if (userWithSameEmail) {
       throw new BadRequestException('Ja existe um usuario com esse email')
     }
-    const empresaId = this.hashService.createId(dto.nome) 
+
+    const empresaId = this.hashService.createIdToUser(dto.nome) 
 
     const user = await this.userModel.create({
       nome: dto.nome,

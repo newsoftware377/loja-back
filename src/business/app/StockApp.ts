@@ -47,26 +47,20 @@ export class StockApp {
     return products.reduce(
       (acc, product) => {
         const stockProduct = stock.find((x) => x.produtoId === product.id);
+        const availableStock = stockProduct.qtd || 0
         let qty = product.qtd;
-        if (!stockProduct) {
-          qty = 0;
-        } else if (stockProduct.qtd < product.qtd) {
-          qty = product.qtd;
-        }
 
-        if (qty > 0) {
-          acc.itens.push({
-            id: product.id,
-            qtd: qty,
-          });
-        }
-
-        if (qty !== product.qtd) {
+        if (qty > availableStock) {
           acc.comMudanca.push({
             id: product.id,
-            qtd: qty,
+            qtd: availableStock,
           });
         }
+
+        acc.itens.push({
+          id: product.id,
+          qtd: product.qtd
+        })
         return acc;
       },
       { itens: [], comMudanca: [] } as StockValidationReturn,
