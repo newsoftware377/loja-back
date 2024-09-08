@@ -24,7 +24,7 @@ export class BoxApp {
     })
 
     if (boxOpened) {
-      throw new BadRequestException('Já existe um caixa aberto, fehce-o antes de abrir outro')
+      throw new BadRequestException('Já existe um caixa aberto, feche-o antes de abrir outro')
     }
 
     const box = await this.boxModel.create({
@@ -67,17 +67,22 @@ export class BoxApp {
     const boxes = await this.boxModel.find({
       lojaId: shopId,
       empresaId: user.empresaId
-    }) 
+    }).sort({ dataAberto: -1 })
 
-    const ordersToday = await this.orderApp.listOrdersToday(shopId)
-    const totalToday = ordersToday.reduce((acc, order) => acc += order.total, 0)
+    const resumeDay = await this.getResumeDay(shopId);
 
     return boxes.map(x => {
       const boxObj = x.toObject()
 
+      if (boxObj.aberto) {
+        return {
+          ...boxObj,
+          ...resumeDay
+        }
+      }
+
       return {
         ...boxObj,
-        valorFinal: boxObj.aberto ? totalToday : boxObj.valorFinal  
       }
     })
   }
