@@ -90,7 +90,7 @@ export class ReportApp {
   
     return {
       ...reportOnLastMonth?.toJSON(),
-      metaAtual: currentReport.meta,
+      metaAtual: currentReport?.meta || 0,
       totalAtual: totalUntilNow
     };
   };

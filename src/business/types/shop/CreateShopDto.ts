@@ -17,3 +17,4 @@ export class CreateShopDto {
   @Type(() => Address)
   endereco: Address
 }
+

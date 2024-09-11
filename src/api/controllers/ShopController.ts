@@ -20,7 +20,7 @@ import { UpdateShopDto } from 'src/business/types/shop/UpdateShopDto';
 export class ShopController {
   constructor(private readonly app: ShopApp) { }
 
-  @AuthRequired([Roles.admin])
+  //@AuthRequired([Roles.admin])
   @Post('admin/criarLoja')
   async createShop(@Body() body: CreateShopDto) {
     return this.app.createShop(body).then(mapToShopWithAddressViewModel);
