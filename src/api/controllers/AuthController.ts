@@ -6,6 +6,7 @@ import { mapToUserViewModel, UserViewModel } from "../viewModels/UserViewModel";
 import { AuthShopDto } from "src/business/types/auth/AuthShopDto";
 import { AuthRequired } from "src/utils/decorators/AuthDecorator";
 import { Roles } from "src/utils/enums/Roles";
+import { ChangePasswordDto } from "src/business/types/auth/ChangePasswordDto";
 
 @Controller('auth')
 export class AuthController {
@@ -13,7 +14,7 @@ export class AuthController {
     private readonly app: AuthApp
   ) {}
   
-  @AuthRequired([Roles.admin])
+  //@AuthRequired([Roles.admin])
   @Post('admin/criarUsuario')
   async createUser(@Body() body: CreateUserDto): Promise<UserViewModel> {
     return this.app.createUser(body).then(x => mapToUserViewModel(x))
@@ -27,6 +28,11 @@ export class AuthController {
   @Post('loja/login')
   async shopLogin(@Body() body: AuthShopDto) {
     return this.app.shopLogin(body)
+  }
+
+  @Post('admin/mudarSenha')
+  async changePassword(@Body() body: ChangePasswordDto) {
+    return this.app.changePassword(body)
   }
 
 }

@@ -202,6 +202,9 @@ Enviar isso no *body*, todos os campos são opcionais
   "qtdMinima": 2
 }
 ```
+- (Remover da promoção) **PATCH** "produto/loja/removerPromocao/:produto_id"
+
+Enviar como parametro o ***Id do produto*** 
 
 ### Cliente
 
@@ -301,7 +304,10 @@ Enviar isso no *body*
   { "produtoId": "6691e7e53ce2d9cece459206", "qtd": 10}
 ]
 ```
-## 
+
+- (Buscar estoque do produto) **GET** "estoque/loja/:produto_id"
+
+Enviar como parametro o ***id do produito***
 
 Esse aqui é utilizando o **socket.io**
 

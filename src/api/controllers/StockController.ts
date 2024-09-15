@@ -1,4 +1,4 @@
-import { Body, Controller, Patch } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch } from "@nestjs/common";
 import { UpdateStockDto } from "src/business/types/stock/UpdateStockDto";
 import { User } from "src/utils/decorators/User";
 import { ShopViewModel } from "../viewModels/ShopViewModel";
@@ -19,4 +19,9 @@ export class StockController {
     return this.app.updateStock(body, user).then(x => x.map(mapToStockViewModel))
   }
 
+  @AuthRequired([Roles.shop])
+  @Get('loja/:id')
+  async getProductStock(@Param('id') id: string, @User() user: ShopViewModel) {
+    return this.app.getProductStock(id, user)
+  }
 }

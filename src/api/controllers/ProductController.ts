@@ -75,4 +75,10 @@ export class ProductController {
   async deleteCategory(@Param('id') categoryId: string, @User() user: ShopViewModel) {
     return this.app.deleteCategory(categoryId, user).then(mapToCategoryViewModel)
   }
+
+  @AuthRequired([Roles.shop])
+  @Patch('loja/removerPromocao/:id')
+  async undoPromotion(@Param('id') id: string, @User() user: ShopViewModel) {
+    return this.app.undoPromotion(id, user)
+  }
 };

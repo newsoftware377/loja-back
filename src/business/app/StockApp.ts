@@ -96,4 +96,13 @@ export class StockApp {
 
     await this.stockGateway.notifyStockChanges(newStock.map(mapToStockViewModel));
   };
+
+  public getProductStock = async (id: string, user: ShopViewModel) => {
+    const stock = await this.stockModel.findOne({ lojaId: user.lojaId, produtoId: id})
+
+    return {
+      qtd: stock?.qtd || 0,
+      produtoId: id
+    }
+  }
 }

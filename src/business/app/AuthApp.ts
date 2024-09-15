@@ -10,6 +10,7 @@ import { AuthShopDto } from "../types/auth/AuthShopDto";
 import { JWTService } from "../services/JWTService";
 import { mapToUserViewModel, UserViewModel } from "src/api/viewModels/UserViewModel";
 import { mapToShopViewModel } from "src/api/viewModels/ShopViewModel";
+import { ChangePasswordDto } from "../types/auth/ChangePasswordDto";
 
 @Injectable()
 export class AuthApp {
@@ -18,7 +19,7 @@ export class AuthApp {
     @InjectModel(Shop.name) private readonly shopModel: Model<Shop>,
     private hashService: HashService,
     private jwtService: JWTService
-  ) {}
+  ) { }
 
   public createUser = async (dto: CreateUserDto) => {
     const userWithSameEmail = await this.userModel.findOne({ email: dto.email })
@@ -27,7 +28,7 @@ export class AuthApp {
       throw new BadRequestException('Ja existe um usuario com esse email')
     }
 
-    const empresaId = this.hashService.createIdToUser(dto.nome) 
+    const empresaId = this.hashService.createIdToUser(dto.nome)
 
     const user = await this.userModel.create({
       nome: dto.nome,
@@ -78,5 +79,16 @@ export class AuthApp {
     }
 
   }
-  
+
+  public changePassword = async (dto: ChangePasswordDto) => {
+    const newPassword = this.hashService.createHashWithSalt(dto.senha)
+    const user = await this.userModel.findOneAndUpdate(
+      { empresaId: dto.empresaId },
+      { senha: newPassword },
+      { new: true }
+    )
+
+    return user
+  }
+
 }

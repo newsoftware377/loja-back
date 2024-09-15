@@ -64,23 +64,21 @@ export class ProductApp {
 
     if (params.termo) {
       const termFilter: any[] = [
-        { nome: { $regex: `.*${params.termo}.*`, $options: 'i'  }}
+        { nome: { $regex: `.*${params.termo}.*`, $options: 'i' } },
       ];
 
       if (!isNaN(Number(params.termo))) {
-        termFilter.unshift(
-          { codigoBarra: params.termo },
-        )
+        termFilter.unshift({ codigoBarra: params.termo });
       }
 
-      filters['$or'] = termFilter
+      filters['$or'] = termFilter;
     }
 
     const products = await this.productModel
       .find({
         lojaId,
         empresaId: shop.empresaId,
-        ...filters
+        ...filters,
       })
       .then((product) => product.map((x) => x.toJSON()));
 
@@ -228,5 +226,23 @@ export class ProductApp {
     });
 
     return category;
+  }
+
+  public async undoPromotion(id: string, user: ShopViewModel) {
+    const product = await this.productModel.findOne({
+      lojaId: user.lojaId,
+      _id: id,
+    });
+
+    if (!product) {
+      throw new BadRequestException('Produto não encontrado');
+    }
+    const newProduct = await this.productModel.findOneAndUpdate(
+      { lojaId: user.lojaId, _id: id },
+      { valorAtual: product.valorOriginal },
+      { new: true }
+    );
+
+    return newProduct
   }
 }

@@ -12,7 +12,7 @@ export class HashService {
 
   public createIdToUser = (name: string) => {
     const hash = crypto.randomBytes(20).toString('hex')
-    const standardName = decodeURI(name.replaceAll('', '-'))
+    const standardName = decodeURI(name.replaceAll(' ', '-').toLowerCase())
 
     return `${standardName}-${hash}`;
   }
