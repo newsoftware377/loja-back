@@ -7,7 +7,6 @@ import { CreateProductDto } from '../types/product/CreateProductDt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../models/ProductModel';
 import { Model } from 'mongoose';
-import * as bwipjs from 'bwip-js';
 import { ProductWithCategory } from '../types/product/Product';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { UserViewModel } from 'src/api/viewModels/UserViewModel';

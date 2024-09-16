@@ -24,10 +24,16 @@ export class ProductController {
    return this.app.createProduct(body, shop).then(mapToProductViewModel)
   }
 
-  @AuthRequired([Roles.shop])
+  @AuthRequired([Roles.shop, Roles.user])
   @Get('lista/:lojaId')
-  async listProducts(@User() shop: ShopViewModel, @Param('lojaId') lojaId: string, @Query() params: ListProductsDto ) {
+  async listProducts(@User() shop: ShopViewModel | UserViewModel, @Param('lojaId') lojaId: string, @Query() params: ListProductsDto ) {
     return this.app.listProducts(shop, lojaId, params).then(x => x.map(mapToProductViewModel))
+  }
+
+  @AuthRequired([Roles.shop])
+  @Get('lista')
+  async listProductsShop(@User() shop: ShopViewModel, @Query() params: ListProductsDto ) {
+    return this.app.listProducts(shop, shop.lojaId, params).then(x => x.map(mapToProductViewModel))
   }
 
   @AuthRequired([Roles.user])

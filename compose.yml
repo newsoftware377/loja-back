@@ -13,7 +13,7 @@ services:
       - newsoftware
     environment:
       - PORT=3001
-      - MONGODB_URL=mongodb+srv://newsoftware:BdpcOmwuMCgVBzec@newsoftware.lbxj8vn.mongodb.net/loja?retryWrites=true&w=majority&appName=newsoftware
+      - MONGODB_URL=ongodb://newsoftware-loja-db:27017/loja
       - SECRET_OR_PRIVATE_KEY=c3c7e94f1a9871fcacfd444b7cac5430331ed9ef
 
   newsoftware-loja-db:
