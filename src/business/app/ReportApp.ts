@@ -153,7 +153,7 @@ export class ReportApp {
     endDate.setDate(0);
     endDate.setHours(23, 0);
 
-    const reports = await this.reportModel.find({
+    const report = await this.reportModel.find({
       createdAt: {
         $gt: initialDate.toISOString(),
         $lte: endDate.toISOString(),
@@ -162,7 +162,7 @@ export class ReportApp {
     });
     const usersCount = await this.shopApp.count()
 
-    if (reports?.length !== usersCount) {
+    if (report?.length !== usersCount) {
       await this.populateNewMonthReport()
       this.logger.debug('Month was populated')
     }
@@ -192,9 +192,9 @@ export class ReportApp {
     );
 
     Array.from(productsMap.values()).forEach((product) => {
-      if (product.qtd > (resume.maisVendido?.qtd || 0)) {
+      if ((product.qtd || 0) > (resume.maisVendido?.qtd || 0)) {
         resume.maisVendido = product;
-      } else if (product.qtd < (resume.menosVendido?.qtd || 0)) {
+      } else if ((product.qtd || 0) < (resume.menosVendido?.qtd || 0)) {
         resume.menosVendido = product;
       }
     });

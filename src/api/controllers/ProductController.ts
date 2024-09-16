@@ -61,6 +61,12 @@ export class ProductController {
   }
 
   @AuthRequired([Roles.shop])
+  @Get('categoria')
+  async listCategoriesShop(@User() user: ShopViewModel) {
+    return this.app.listCategories(user.lojaId).then(x => x.map(mapToCategoryViewModel))
+   }
+
+  @AuthRequired([Roles.shop])
   @Patch('loja/categoria/:id')
   async updateCategory(
     @Body() body: CreateCategoryDto,

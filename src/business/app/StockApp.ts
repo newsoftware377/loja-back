@@ -26,7 +26,7 @@ export class StockApp {
         {
           $and: [{ produtoId: item.produtoId }, { lojaId: user.lojaId }],
         },
-        { qtd: item.qtd, produtoId: item.produtoId },
+        { qtd: item.qtd, produtoId: item.produtoId, createdAt: new Date().toISOString() },
         { new: true, upsert: true },
       ),
     );
