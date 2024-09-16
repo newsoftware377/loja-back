@@ -74,4 +74,8 @@ export class ShopApp {
   public listAllShops = () => {
     return this.shopModel.find();
   };
+
+  public count = async () => {
+    return this.shopModel.countDocuments()
+  }
 }

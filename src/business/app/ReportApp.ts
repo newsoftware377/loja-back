@@ -55,7 +55,7 @@ export class ReportApp {
         concluido: false,
       },
       { meta: goal },
-      { new: true },
+      { new: true, upsert: true },
     );
 
     return report;
@@ -153,18 +153,19 @@ export class ReportApp {
     endDate.setDate(0);
     endDate.setHours(23, 0);
 
-    const report = await this.reportModel.findOne({
+    const reports = await this.reportModel.find({
       createdAt: {
         $gt: initialDate.toISOString(),
         $lte: endDate.toISOString(),
       },
+      concluido: false
     });
+    const usersCount = await this.shopApp.count()
 
-    if (!report) {
+    if (reports?.length !== usersCount) {
       await this.populateNewMonthReport()
       this.logger.debug('Month was populated')
     }
-
   }
 
   private getResumedReport = async (shopId: string) => {
