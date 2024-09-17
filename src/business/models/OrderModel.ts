@@ -32,7 +32,7 @@ export class Order {
   @Prop({ type: Number, required: true,})
   total: number
 
-  @Prop({ required: true, type: String, enum: Object.values(Payments) })
+  //@Prop({ required: true, type: String, enum: Object.values(Payments) })
   pagamento: Payments
 
   @Prop({ required: true, type: String })
