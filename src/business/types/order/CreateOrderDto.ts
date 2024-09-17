@@ -1,5 +1,5 @@
 import { Type } from "class-transformer"
-import { IsBoolean, IsEnum, IsMongoId, IsOptional, IsPositive, IsString } from "class-validator"
+import { IsBoolean, IsEnum, IsInt, isInt, IsMongoId, IsOptional, IsPositive, IsString } from "class-validator"
 import { Payments } from "./OrderPayments"
 
 export class CrateItem {
@@ -19,15 +19,16 @@ export class CreateOrderDto {
   @Type(() => CrateItem)
   produtos: CrateItem[]
 
+  @IsOptional()
   @IsBoolean()
   paraEntrega: boolean
 
   @IsOptional()
-  @IsPositive()
+  @IsInt()
   acressimo?: number
 
   @IsOptional()
-  @IsPositive()
+  @IsInt()
   desconto?: number
 
   @IsEnum(Payments, { message: `pagamento deve ser um dos seguintes valores: ${Object.values(Payments).toString()}`})
