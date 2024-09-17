@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CrateItem, CreateOrderDto } from '../types/order/CreateOrderDto';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,24 +8,28 @@ import { Product } from '../models/ProductModel';
 import { ProductCrate } from '../types/order/Product';
 import { StockApp } from './StockApp';
 import { calcTotalValue } from 'src/utils/calcTotal';
-import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 
 @Injectable()
 export class OrderApp {
   constructor(
     @InjectModel(Order.name) private readonly orderModel: Model<Order>,
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
-    private readonly stockApp: StockApp
+    private readonly stockApp: StockApp,
+    private readonly log: Logger
   ) { }
 
   public createOrder = async (dto: CreateOrderDto, user: ShopViewModel) => {
+    this.log.debug('OrderApp:createOrder -> O pedido vai ser feito')
     const { itens, comMudanca } = await this.stockApp.validateStock(dto.produtos, user.lojaId) 
 
     if (itens.every(x => x.qtd === 0)) {
+      this.log.debug('OrderApp:createOrder -> Todos os produtos fora de estoque')
       throw new BadRequestException('Todos os produdos estão fora de estoque')
     }
 
     if (comMudanca.length) {
+      this.log.debug('OrderApp:createOrder -> Algum dos produtos está fora de estoque')
+      this.log.debug('O pedido vai ser feito')
       throw new BadRequestException({
         message: "Alguns produtos não tem o estoque solicitado",
         data: comMudanca
