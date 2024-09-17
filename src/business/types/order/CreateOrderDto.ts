@@ -31,7 +31,7 @@ export class CreateOrderDto {
   @IsInt()
   desconto?: number
 
-  @IsEnum(Payments, { message: `pagamento deve ser um dos seguintes valores: ${Object.values(Payments).toString()}`})
+  //@IsEnum(Payments, { message: `pagamento deve ser um dos seguintes valores: ${Object.values(Payments).toString()}`})
   @IsString()
   pagamento: Payments
 }
