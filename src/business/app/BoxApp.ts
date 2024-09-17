@@ -98,20 +98,22 @@ export class BoxApp {
       qtdPedidos: orders.length,
     };
 
+
     return orders.reduce((acc, order) => {
-      switch (order.pagamento) {
+      const orderObj = order.toObject()
+      switch (orderObj.pagamento) {
         case Payments.pix:
-          acc.valorPix += order.total;
+          acc.valorPix += orderObj.total;
           break;
         case Payments.cartao:
-          acc.valorCartao += order.total;
+          acc.valorCartao += orderObj.total;
           break;
         case Payments.dinheiro:
-          acc.valorDinheiro += order.total;
+          acc.valorDinheiro += orderObj.total;
           break;
       }
 
-      acc.valorFinal += order.total;
+      acc.valorFinal += orderObj.total;
       return acc;
     }, initialReduceValue);
   };
