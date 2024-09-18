@@ -24,4 +24,10 @@ export class StockController {
   async getProductStock(@Param('id') id: string, @User() user: ShopViewModel) {
     return this.app.getProductStock(id, user)
   }
+
+  @AuthRequired([Roles.shop])
+  @Patch('loja/diminuir')
+  async lessStock(@Body() body: UpdateStockDto[], @User() user: ShopViewModel) {
+    return this.app.lessStock(body, user)
+  }
 }

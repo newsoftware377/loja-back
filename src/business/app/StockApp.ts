@@ -26,7 +26,40 @@ export class StockApp {
         {
           $and: [{ produtoId: item.produtoId }, { lojaId: user.lojaId }],
         },
-        { qtd: item.qtd, produtoId: item.produtoId, createdAt: new Date().toISOString() },
+        { qtd: item.qtd, produtoId: item.produtoId, updatedAt: new Date().toISOString() },
+        { new: true, upsert: true },
+      ),
+    );
+
+    const newStock = await Promise.all(newStockPromises);
+    this.stockGateway.notifyStockChanges(newStock.map(mapToStockViewModel));
+
+    return newStock;
+  };
+
+  public lessStock = async (dto: UpdateStockDto[], user: ShopViewModel) => {
+    const currentStocksRegister = await this.stockModel.find({
+      lojaId: user.lojaId,
+      produtoId: { $in: dto.map(x => x.produtoId)}
+    })
+
+    const stockLess = dto.map(item => {
+      const currentStock = currentStocksRegister.find(x => x.produtoId === item.produtoId)
+
+      const newQtd = (currentStock?.qtd || 0) - item.qtd
+
+      return {
+        produtoId: item.produtoId,
+        qtd: newQtd >= 0 ? newQtd : 0
+      }
+    })
+
+    const newStockPromises = stockLess.map((item) =>
+      this.stockModel.findOneAndUpdate(
+        {
+          $and: [{ produtoId: item.produtoId }, { lojaId: user.lojaId }],
+        },
+        { qtd: item.qtd, produtoId: item.produtoId, updatedAt: new Date().toISOString() },
         { new: true, upsert: true },
       ),
     );
