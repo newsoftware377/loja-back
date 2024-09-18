@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { OpenBoxDto } from '../types/box/OpenBoxDto';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { InjectModel } from '@nestjs/mongoose';
-import { Box } from '../models/BoxModel';
+import { Box, BoxDocument } from '../models/BoxModel';
 import { Model } from 'mongoose';
 import { OrderApp } from './OrderApp';
 import { Payments } from '../types/order/OrderPayments';
@@ -39,11 +39,17 @@ export class BoxApp {
 
   public async close(user: ShopViewModel) {
     const now = new Date();
-    const resume = await this.getResumeDay(user.lojaId);
-
+    const openedBox = await this.boxModel.findOne({
+      aberto: true
+    })
+    const date = new Date(openedBox.dataAberto)
+    const resume = await this.getResumeDay(user.lojaId, date);
+    
     const box = await this.boxModel.findOneAndUpdate(
       {
         aberto: true,
+        lojaId: user.lojaId,
+        empresaId: user.empresaId
       },
       {
         aberto: false,
@@ -68,8 +74,10 @@ export class BoxApp {
       lojaId: shopId,
       empresaId: user.empresaId
     }).sort({ dataAberto: -1 })
+    const openedBox = boxes.find(x => x.aberto)
+    const date = new Date(openedBox.dataAberto)
 
-    const resumeDay = await this.getResumeDay(shopId);
+    const resumeDay = await this.getResumeDay(shopId, date);
 
     return boxes.map(x => {
       const boxObj = x.toObject()
@@ -87,8 +95,8 @@ export class BoxApp {
     })
   }
 
-  private getResumeDay = async (shopId: string) => {
-    const orders = await this.orderApp.getOrdersToday(shopId);
+  private getResumeDay = async (shopId: string, date?: Date) => {
+    const orders = (await this.orderApp.getOrdersMoreThatDate(shopId, date)) || [];
 
     const initialReduceValue = {
       valorFinal: 0,

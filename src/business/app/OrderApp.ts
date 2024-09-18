@@ -123,10 +123,7 @@ export class OrderApp {
     return orders
   }
 
-  public getOrdersToday = async (shopId: string) => {
-    const date = new Date()
-    date.setHours(0,0)
-
+  public getOrdersMoreThatDate = async (shopId: string, date: Date) => {
     return this.orderModel.find({
       lojaId: shopId,
       createdAt: {
