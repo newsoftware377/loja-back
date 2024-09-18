@@ -75,9 +75,10 @@ export class BoxApp {
       empresaId: user.empresaId
     }).sort({ dataAberto: -1 })
     const openedBox = boxes.find(x => x.aberto)
-    const date = new Date(openedBox.dataAberto)
+    const date = new Date(openedBox?.dataAberto)
 
-    const resumeDay = await this.getResumeDay(shopId, date);
+    let resumeDay = {}
+    if (openedBox) resumeDay = await this.getResumeDay(shopId, date);
 
     return boxes.map(x => {
       const boxObj = x.toObject()
