@@ -30,7 +30,7 @@ import { ReportService } from './business/services/ReportService';
 import { UserController } from './api/controllers/UserController';
 import { UserApp } from './business/app/UserApp';
 import { Box, BoxSchema } from './business/models/BoxModel';
-import { BoxController } from './api/controllers/BoxModel';
+import { BoxController } from './api/controllers/BoxController';
 import { BoxApp } from './business/app/BoxApp';
 
 @Module({

@@ -1,25 +1,30 @@
 <h1 align="center">End-point backend loja</h1>
 
-## URL base: https://loja-back-1.onrender.com/ 
+## URL base: https://loja-back-1.onrender.com/
+
 ### Autenticação
 
 - (Fazer o login) **POST** : "auth/loja/login"
 
-Enviar isso no *body* 
+Enviar isso no _body_
+
 ```json
 {
   "empresaId": "vinicius-aguiar-31158a5edbe1c8f027b595d91e13bf9c5469984a",
   "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
 }
 ```
-*Retorno de sucesso*
+
+_Retorno de sucesso_
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub21lIjoibG9qYSAxIiwiZW1wcmVzYUlkIjoidmluaWNpdXMtYWd1aWFyLTMxMTU4YTVlZGJlMWM4ZjAyN2I1OTVkOTFlMTNiZjljNTQ2OTk4NGEiLCJjbnBqIjoiMTIxMjMxMjMzMzMiLCJsb2phSWQiOiJsb2phLTEtMWEzMzE3ZmZiYjQ5MDU3MmM2MzQ3YWRiNzk5Njk3NDM4MWQxNWEzYiIsImlkIjoiNjY5MmYwYTIzZjJmNmExYmYyNGY0NDllIiwiaWF0IjoxNzIwOTI1NzMyLCJleHAiOjE3MjM1MTc3MzJ9.1iLnfcaBEKyEie7QQwTxwrxwKaUDaFV_FHGzT03zPEs"
 }
 ```
-- ⚠️  <span style="color: #e4911e">essa empresa e essa loja já foram criadas quando testei</span>
-- ⚠️  <span style="color: #e4911e">Todas os outros endpoints precisam passar esse token no header authorization</span>
+
+- ⚠️ <span style="color: #e4911e">essa empresa e essa loja já foram criadas quando testei</span>
+- ⚠️ <span style="color: #e4911e">Todas os outros endpoints precisam passar esse token no header authorization</span>
 
 ```bash
 authorization: "Bearer {token}"
@@ -29,75 +34,84 @@ authorization: "Bearer {token}"
 
 - (Criar categoria) **POST** "produto/loja/categoria"
 
-Enviar isso no *body*
+Enviar isso no _body_
+
 ```json
 {
-    "nome": "Vestido"
+  "nome": "Vestido"
 }
 ```
-*Retorno de sucesso*
+
+_Retorno de sucesso_
+
 ```json
 {
-    "nome": "Vestido",
-    "id": "669a94b45455bc666c787215",
-    "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
+  "nome": "Vestido",
+  "id": "669a94b45455bc666c787215",
+  "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
 }
 ```
 
 - (Listar categorias) **GET** 'produto/categoria/loja/:lojaId'
 
-Enviar o *Id da loja* como parâmetro
+Enviar o _Id da loja_ como parâmetro
 
-*Retorno de sucesso*
+_Retorno de sucesso_
+
 ```json
 [
-    {
-        "nome": "Vestido",
-        "id": "669a94b45455bc666c787215",
-        "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
-    },
-    {
-        "nome": "Vestido",
-        "id": "669a94b45455bc666c787215",
-        "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
-    }
+  {
+    "nome": "Vestido",
+    "id": "669a94b45455bc666c787215",
+    "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
+  },
+  {
+    "nome": "Vestido",
+    "id": "669a94b45455bc666c787215",
+    "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
+  }
 ]
 ```
 
 - (Deletar categoria) **DELETE** 'produto/categoria/:id'
 
-Enviar o *Id da categoria* como parâmetro
+Enviar o _Id da categoria_ como parâmetro
 
-*Retorno de sucesso*
+_Retorno de sucesso_
+
 ```json
-    {
-        "nome": "Vestido",
-        "id": "669a94b45455bc666c787215",
-        "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
-    }
+{
+  "nome": "Vestido",
+  "id": "669a94b45455bc666c787215",
+  "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
+}
 ```
 
 - (Atualizar nome da categoria) **PATCH** 'produto/categoria/:id'
 
-Enviar o *Id da categoria* como parâmetro
+Enviar o _Id da categoria_ como parâmetro
+
 ```json
 {
-    "nome": "Calçado"
+  "nome": "Calçado"
 }
 ```
-*Retorno de sucesso*
+
+_Retorno de sucesso_
+
 ```json
     {
         "nome": "Calçado",
         "id": "669a94b45455bc666c787215",
         "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
     },
- 
+
 ```
 
 - (Criar um produto) **POST** : "produto/loja"
 
-Enviar isso no *body*
+Enviar isso no _body_
+
 ```json
 {
   "nome": "Roupa 10",
@@ -108,7 +122,9 @@ Enviar isso no *body*
   "qtdMinima": 2
 }
 ```
-*Retorno de sucesso*
+
+_Retorno de sucesso_
+
 ```json
 {
   "nome": "Roupa 10",
@@ -126,9 +142,10 @@ Enviar isso no *body*
 
 - (Listar os produtos) **GET** "produto/lista/:lojaId"
 
-Enviar como parametro o ***Id da loja***
+Enviar como parametro o **_Id da loja_**
 
-*Retorno de sucesso*
+_Retorno de sucesso_
+
 ```json
 [
   {
@@ -172,13 +189,14 @@ Enviar como parametro o ***Id da loja***
 
 - (Deletar produto) **DELETE** "produto/loja/:lojaId"
 
-Enviar como parametro o ***Id da loja***
+Enviar como parametro o **_Id da loja_**
 
 - (Editar o produto) **PATCH** "produto/loja/:produto_id"
 
-Enviar como parametro o ***Id do produto***
+Enviar como parametro o **_Id do produto_**
 
-Enviar isso no *body*, todos os campos são opcionais
+Enviar isso no _body_, todos os campos são opcionais
+
 ```json
 {
   "nome": "Roupa 10",
@@ -187,7 +205,9 @@ Enviar isso no *body*, todos os campos são opcionais
   "valorAtual": 15
 }
 ```
-*Retorno de sucesso*
+
+_Retorno de sucesso_
+
 ```json
 {
   "nome": "Roupa 10",
@@ -202,15 +222,17 @@ Enviar isso no *body*, todos os campos são opcionais
   "qtdMinima": 2
 }
 ```
+
 - (Remover da promoção) **PATCH** "produto/loja/removerPromocao/:produto_id"
 
-Enviar como parametro o ***Id do produto*** 
+Enviar como parametro o **_Id do produto_**
 
 ### Cliente
 
 - (Criar cliente) POST "cliente/loja"
 
-Enviar isso no *body*
+Enviar isso no _body_
+
 ```json
 {
   "nome": "vincius",
@@ -220,13 +242,15 @@ Enviar isso no *body*
     "endereco": "Rua vicene gomes",
     "bairro": "Centro",
     "cidade": "Mucambo",
-    "numero":23,
+    "numero": 23,
     "estado": "ce",
     "cep": "62170000"
   }
 }
 ```
-*Retorno de sucesso*
+
+_Retorno de sucesso_
+
 ```json
 {
   "cpf": "12333123",
@@ -247,7 +271,8 @@ Enviar isso no *body*
 
 - (Listar os clientes) **GET** "cliente/loja/lista"
 
-*Retorno de sucesso*
+_Retorno de sucesso_
+
 ```json
 [
   {
@@ -271,13 +296,14 @@ Enviar isso no *body*
 
 - (Deletar cliente) DELETE "cliente/loja/:id"
 
-Enviar como parametro o ***Id do cliente***
+Enviar como parametro o **_Id do cliente_**
 
 - (Atualizar os dados do cliente) **PATCH** "cliente/loja/:id"
 
-Enviar como parametro o ***Id do cliente***
+Enviar como parametro o **_Id do cliente_**
 
-Enviar isso no *body*, todos os campos são opcionais
+Enviar isso no _body_, todos os campos são opcionais
+
 ```json
 {
   "nome": "vincius teste 11",
@@ -298,16 +324,15 @@ Enviar isso no *body*, todos os campos são opcionais
 
 - (Atualizar o estoque) **PATCH** "estoque/loja"
 
-Enviar isso no *body*
+Enviar isso no _body_
+
 ```json
-[
-  { "produtoId": "6691e7e53ce2d9cece459206", "qtd": 10}
-]
+[{ "produtoId": "6691e7e53ce2d9cece459206", "qtd": 10 }]
 ```
 
 - (Buscar estoque do produto) **GET** "estoque/loja/:produto_id"
 
-Enviar como parametro o ***id do produito***
+Enviar como parametro o **_id do produito_**
 
 Esse aqui é utilizando o **socket.io**
 
@@ -318,15 +343,18 @@ Na conecção com o socket, precisa passar alguns paramentros
 - transports = ["websocket"]
 - url = https://loja-back-1.onrender.com/
 - auth
-```json
-    {
-        "token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub21lIjoibG9qYSAxIiwiZW1wcmVzYUlkIjoidmluaWNpdXMtYWd1aWFyLTMxMTU4YTVlZGJlMWM4ZjAyN2I1OTVkOTFlMTNiZjljNTQ2OTk4NGEiLCJjbnBqIjoiMTIxMjMxMjMzMzMiLCJsb2phSWQiOiJsb2phLTEtMWEzMzE3ZmZiYjQ5MDU3MmM2MzQ3YWRiNzk5Njk3NDM4MWQxNWEzYiIsImlkIjoiNjY5MmYwYTIzZjJmNmExYmYyNGY0NDllIiwiaWF0IjoxNzIwOTI1NzMyLCJleHAiOjE3MjM1MTc3MzJ9.1iLnfcaBEKyEie7QQwTxwrxwKaUDaFV_FHGzT03zPEs"
-    }
-```
-- query
+
 ```json
 {
-    "lojaIds": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub21lIjoibG9qYSAxIiwiZW1wcmVzYUlkIjoidmluaWNpdXMtYWd1aWFyLTMxMTU4YTVlZGJlMWM4ZjAyN2I1OTVkOTFlMTNiZjljNTQ2OTk4NGEiLCJjbnBqIjoiMTIxMjMxMjMzMzMiLCJsb2phSWQiOiJsb2phLTEtMWEzMzE3ZmZiYjQ5MDU3MmM2MzQ3YWRiNzk5Njk3NDM4MWQxNWEzYiIsImlkIjoiNjY5MmYwYTIzZjJmNmExYmYyNGY0NDllIiwiaWF0IjoxNzIwOTI1NzMyLCJleHAiOjE3MjM1MTc3MzJ9.1iLnfcaBEKyEie7QQwTxwrxwKaUDaFV_FHGzT03zPEs"
+}
+```
+
+- query
+
+```json
+{
+  "lojaIds": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
 }
 ```
 
@@ -337,6 +365,7 @@ https://python-socketio.readthedocs.io/en/stable/api.html#socketio.Client.on
 **event = "estoque/mudanca"**
 
 Retorno
+
 ```json
 [
   {
@@ -347,6 +376,7 @@ Retorno
 ]
 
 ```
+
 Ele retorna todos os produtos que tiveram o estoque atualizado
 
 ### Pedido
@@ -354,12 +384,11 @@ Ele retorna todos os produtos que tiveram o estoque atualizado
 - (Criar pedido) **POST** "pedido/loja"
 
 pagamento tem que ser: pix , dinheiro ou cartao
-Enviar isso no *body*
+Enviar isso no _body_
+
 ```json
 {
-  "produtos": [
-    { "id": "6695640530c2738d8cacb04d", "qtd": 20 }
-  ],
+  "produtos": [{ "id": "6695640530c2738d8cacb04d", "qtd": 20 }],
   "pagamento": "pix",
   "paraEntrega": false,
   "acressimo": 10,
@@ -367,7 +396,8 @@ Enviar isso no *body*
 }
 ```
 
-Retorno 
+Retorno
+
 ```json
 {
   "criadoEm": "2024-07-17T17:04:27.314Z",
@@ -392,25 +422,26 @@ Retorno
 - (Listar pedidos) **GET** "pedido/listarTodos"
 
 Retorno
+
 ```json
 [
   {
-      "criadoEm": "2024-07-17T17:04:27.314Z",
-      "lojaId": "loja-1-575b0c6fda653be0ef8a2b221089e35119ef867d",
-      "paraEntrega": false,
-      "id": "6697f99b7e510a04bb83d783",
-      "total": 305,
-      "produtos": [
-        {
-          "qtd": 20,
-          "nome": "Roupa 10",
-          "preco": 15,
-          "id": "6695640530c2738d8cacb04d"
-        }
-      ],
-      "pagamento": "pix",
-      "desconto": 5,
-      "acressimo": 10
+    "criadoEm": "2024-07-17T17:04:27.314Z",
+    "lojaId": "loja-1-575b0c6fda653be0ef8a2b221089e35119ef867d",
+    "paraEntrega": false,
+    "id": "6697f99b7e510a04bb83d783",
+    "total": 305,
+    "produtos": [
+      {
+        "qtd": 20,
+        "nome": "Roupa 10",
+        "preco": 15,
+        "id": "6695640530c2738d8cacb04d"
+      }
+    ],
+    "pagamento": "pix",
+    "desconto": 5,
+    "acressimo": 10
   }
 ]
 ```
@@ -418,39 +449,68 @@ Retorno
 - (Listar pedidos de hoje) **GET** "pedido/listarDeHoje"
 
 Retorno
+
 ```json
 [
   {
-      "criadoEm": "2024-07-17T17:04:27.314Z",
-      "lojaId": "loja-1-575b0c6fda653be0ef8a2b221089e35119ef867d",
-      "paraEntrega": false,
-      "id": "6697f99b7e510a04bb83d783",
-      "total": 305,
-      "produtos": [
-        {
-          "qtd": 20,
-          "nome": "Roupa 10",
-          "preco": 15,
-          "id": "6695640530c2738d8cacb04d"
-        }
-      ],
-      "pagamento": "pix",
-      "desconto": 5,
-      "acressimo": 10
+    "criadoEm": "2024-07-17T17:04:27.314Z",
+    "lojaId": "loja-1-575b0c6fda653be0ef8a2b221089e35119ef867d",
+    "paraEntrega": false,
+    "id": "6697f99b7e510a04bb83d783",
+    "total": 305,
+    "produtos": [
+      {
+        "qtd": 20,
+        "nome": "Roupa 10",
+        "preco": 15,
+        "id": "6695640530c2738d8cacb04d"
+      }
+    ],
+    "pagamento": "pix",
+    "desconto": 5,
+    "acressimo": 10
   }
 ]
 ```
 
 ### Caixa
 
-- (Abrir o  caixa) **POST** "caixa/abrir"
+- (Abrir o caixa) **POST** "caixa/abrir"
 
-Enviar isso no *body*
+Enviar isso no _body_
+
 ```json
 {
-    "valorInicial": 30
+  "valorInicial": 30
 }
 ```
 
 - (Fechar o caixa) **PATCH** "caixa/fechar"
+
+- (Criar despesa) **POST** "caixa/loja/despesa"
+
+Enviar isso no *body*, descricao é opicional
+
+```ts
+    {
+        "titulo": "Folha",
+        "descricao": "faltou",
+        "valor": 20
+    }
+```
+
+- (Atualiar despesa) **PUT** "caixa/loja/despesa"
+
+Enviar isso no *body*, descricao é opicional
+
+```ts
+    {
+        "titulo": "Folha",
+        "descricao": "faltou",
+        "valor": 20,
+        "id": "66eda7d8dcdd9bf4123b4528"
+    }
+```
+
+- (Buscar caixa aberta) **GET** "caixa/loja/caixaAberto"
 

@@ -3,6 +3,18 @@ import { HydratedDocument } from "mongoose";
 
 export type BoxDocument = HydratedDocument<Box>
 
+@Schema() 
+export class Expense {
+  @Prop({ type: String, required: true})
+  titulo: string
+
+  @Prop({ type: String, default: "" })
+  descricao?: string
+
+  @Prop({ type: Number, required: true})
+  valor: number
+}
+
 @Schema()
 export class Box {
   @Prop({ required: true, type: Number})
@@ -37,6 +49,9 @@ export class Box {
 
   @Prop({ type: String, required: true})
   empresaId: string
+
+  @Prop({ type: [Expense], default: []})
+  despesas: Expense[]
 }
 
 export const BoxSchema = SchemaFactory.createForClass(Box)
