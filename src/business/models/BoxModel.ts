@@ -13,6 +13,9 @@ export class Expense {
 
   @Prop({ type: Number, required: true})
   valor: number
+
+  @Prop({ type: Date, required: true})
+  data: Date
 }
 
 @Schema()
@@ -55,3 +58,4 @@ export class Box {
 }
 
 export const BoxSchema = SchemaFactory.createForClass(Box)
+

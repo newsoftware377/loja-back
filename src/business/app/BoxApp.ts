@@ -35,6 +35,33 @@ export class BoxApp {
       );
     }
 
+    const beginDate = new Date()
+    beginDate.setHours(1)
+    
+    const endDate = new Date()
+    endDate.setHours(23, 59)
+
+    const boxToday = await this.boxModel.findOne({ 
+      lojaId: user.lojaId,
+      empresaId: user.empresaId,
+      dataAberto: {
+        $gte: beginDate.toISOString(),
+        $lte: endDate.toISOString()
+      },
+      aberto: false
+    })
+
+    if (boxToday) {
+      const box = await this.boxModel.findOneAndUpdate({
+        _id: boxToday._id
+      }, { 
+        aberto: true,
+        valorInicial: dto.valorInicial,
+      }, { new: true });
+
+      return box;
+    }
+
     const box = await this.boxModel.create({
       lojaId: user.lojaId,
       empresaId: user.empresaId,
@@ -113,6 +140,7 @@ export class BoxApp {
       valor: dto.valor,
       titulo: dto.titulo,
       descricao: dto.descricao,
+      data:  new Date()
     };
 
     const newBox = await this.boxModel.findOneAndUpdate(
