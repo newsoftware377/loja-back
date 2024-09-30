@@ -75,8 +75,15 @@ export class BoxApp {
   public async close(user: ShopViewModel) {
     const now = new Date();
     const openedBox = await this.boxModel.findOne({
+      lojaId: user.lojaId,
+      empresaId: user.empresaId,
       aberto: true,
     });
+
+    if (!openedBox) {
+      throw new NotFoundException('Nenhum caixa encontrado')
+    }
+
     const date = new Date(openedBox.dataAberto);
     const resume = await this.getResumeDay(user.lojaId, date);
 
@@ -95,11 +102,8 @@ export class BoxApp {
         valorCartao: resume.valorCartao,
         qtdPedidos: resume.qtdPedidos,
       },
+      { new: true }
     );
-
-    if (!box) {
-      throw new NotFoundException('Nao existe caixa aberto atualmente');
-    }
 
     return box;
   }
@@ -209,7 +213,55 @@ export class BoxApp {
     }
   }
 
-  private getResumeDay = async (shopId: string, date?: Date) => {
+  public test = async (id: string, shopId: string) => {
+    const box = await this.boxModel.findOne({ _id: id })
+
+    const resume = await this.getResume(shopId, new Date(box.dataAberto), new Date(box.dataFechado))
+
+    return resume
+  }
+
+  private getResume = async (shopId: string, date1: Date, date2: Date) => {
+    const orders =
+      (await this.orderApp.getOrdersMoreThatDate2(shopId, date1, date2)) || [];
+
+    console.log(date1.toLocaleString('pt-br'))
+    console.log(date2.toLocaleString('pt-br'))
+    console.log('----------------')
+    console.log(orders.map(x => ({
+      total: x.total,
+      data: new Date(x.createdAt).toLocaleString('pt-br')
+    })))
+
+    const initialReduceValue = {
+      valorFinal: 0,
+      valorPix: 0,
+      valorDinheiro: 0,
+      valorCartao: 0,
+      qtdPedidos: orders.length,
+    };
+
+    return orders.reduce((acc, order) => {
+      const orderObj = order.toObject();
+      switch (orderObj.pagamento) {
+        case Payments.pix:
+          acc.valorPix += orderObj.total;
+          break;
+        case Payments.cartao:
+          acc.valorCartao += orderObj.total;
+          break;
+        case Payments.dinheiro:
+          acc.valorDinheiro += orderObj.total;
+          break;
+      }
+
+      acc.valorFinal += orderObj.total;
+      return acc;
+    }, initialReduceValue);
+  };
+
+
+  private getResumeDay = async (shopId: string, date: Date) => {
     const orders =
       (await this.orderApp.getOrdersMoreThatDate(shopId, date)) || [];
 

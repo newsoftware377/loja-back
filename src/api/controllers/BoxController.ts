@@ -25,12 +25,6 @@ export class BoxController {
     return this.app.close(user);
   }
 
-  @AuthRequired([Roles.user])
-  @Get(':lojaId')
-  async list(@User() user: UserViewModel, @Param('lojaId') shopId: string) {
-    return this.app.list(shopId, user);
-  }
-
   @AuthRequired([Roles.shop])
   @Post('loja/despesa')
   async createExpense(
@@ -53,5 +47,16 @@ export class BoxController {
   @Get('loja/caixaAberto')
   async listExpenses(@User() user: ShopViewModel) {
     return this.app.getOpenedBox(user)
+  }
+
+  @Get('teste/:id')
+  async getResume(@Param('id') id: string) {
+    return this.app.test(id, 'loja-1-a7f92b7920852b39cf03d01c6b563e542148889a')
+  }
+
+  @AuthRequired([Roles.user])
+  @Get(':lojaId')
+  async list(@User() user: UserViewModel, @Param('lojaId') shopId: string) {
+    return this.app.list(shopId, user);
   }
 }

@@ -132,6 +132,16 @@ export class OrderApp {
     })
   }
 
+  public getOrdersMoreThatDate2 = async (shopId: string, date1: Date, date2: Date) => {
+    return this.orderModel.find({
+      lojaId: shopId,
+      createdAt: {
+        $gte: date1.toISOString(),
+        $lte: date2.toISOString()
+      }
+    })
+  }
+
   private async getProducts(
     produtos: CrateItem[],
     user: ShopViewModel,
