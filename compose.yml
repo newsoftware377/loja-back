@@ -6,7 +6,7 @@ services:
     ports:
       - "3004:3001"
     build:
-      context: .
+      context: docker/develop
     volumes:
       - .:/app
     networks:
