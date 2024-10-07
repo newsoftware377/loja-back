@@ -5,16 +5,17 @@ services:
     image: newsoftware-loja:develop
     ports:
       - "3004:3001"
-    build:
-      context: docker/develop
+    build: 
+      context: .
+      dockerfile: docker/develop/Dockerfile
     volumes:
       - .:/app
     networks:
       - newsoftware
     environment:
       - PORT=3001
-      - MONGODB_URL=${MONGO_URL}
-      - SECRET_OR_PRIVATE_KEY=${SECRET_OR_PRIVATE_KEY}
+      - MONGODB_URL=mongodb://newsoftware-loja-db:27017/loja
+      - SECRET_OR_PRIVATE_KEY=c3c7e94f1a9871fcacfd444b7cac5430331ed9ef
 
   newsoftware-loja-db:
     container_name: newsoftware-loja-db

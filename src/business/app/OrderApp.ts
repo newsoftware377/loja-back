@@ -29,7 +29,6 @@ export class OrderApp {
 
     if (comMudanca.length) {
       this.log.debug('OrderApp:createOrder -> Algum dos produtos está fora de estoque')
-      this.log.debug('O pedido vai ser feito')
       throw new BadRequestException({
         message: "Alguns produtos não tem o estoque solicitado",
         data: comMudanca
