@@ -3,7 +3,10 @@ import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 import { ShopApp } from './ShopApp';
 import { OrderApp } from './OrderApp';
 import { ResumeToday } from '../types/report/ResumeToday';
-import { ResumeMonth, ResumeMonthWithCurrent } from '../types/report/ResumeMonth';
+import {
+  ResumeMonth,
+  ResumeMonthWithCurrent,
+} from '../types/report/ResumeMonth';
 import { calcTotalValue } from 'src/utils/calcTotal';
 import { Product } from '../models/OrderModel';
 import { Model } from 'mongoose';
@@ -16,7 +19,7 @@ export class ReportApp {
     private readonly shopApp: ShopApp,
     private readonly orderApp: OrderApp,
     @InjectModel(Report.name) private readonly reportModel: Model<Report>,
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) { }
 
   public searchResumeToday = async (
@@ -83,15 +86,16 @@ export class ReportApp {
 
     const currentReport = await this.reportModel.findOne({
       lojaId: shopId,
-      concluido: false
-    })
+      concluido: false,
+    });
 
-    const totalUntilNow = (await this.orderApp.totalOnMonthUntilNow(shopId))?.[0]?.sum || 0
-  
+    const totalUntilNow =
+      (await this.orderApp.totalOnMonthUntilNow(shopId))?.[0]?.sum || 0;
+
     return {
       ...reportOnLastMonth?.toJSON(),
       metaAtual: currentReport?.meta || 0,
-      totalAtual: totalUntilNow
+      totalAtual: totalUntilNow,
     };
   };
 
@@ -102,47 +106,54 @@ export class ReportApp {
     const populateByChunk = async (start = 0, end = chunkCount) => {
       const promises = undoneReports
         .slice(start, end)
-        .map(async ({ lojaId }) => {
+        .map(async ({ lojaId, meta }) => {
           const resume = await this.getResumedReport(lojaId);
-          const report = await this.reportModel.updateOne({ lojaId }, resume, {
-            new: true,
-            upsert: true
-          });
+          const report = await this.reportModel.updateOne(
+            { lojaId },
+            {
+              ...resume,
+              meta
+            },
+            {
+              new: true,
+              upsert: true,
+            });
           return report;
         });
 
-        await Promise.all(promises)
-        if (end < undoneReports.length) populateByChunk(start + chunkCount, end + chunkCount)
-    }
+      await Promise.all(promises);
+      if (end < undoneReports.length)
+        populateByChunk(start + chunkCount, end + chunkCount);
+    };
 
-    populateByChunk()
+    populateByChunk();
   };
 
   public populateNewMonthReport = async () => {
     const report = await this.reportModel.findOne({ concluido: false });
 
     if (report) {
-      this.logger.debug('Report will be mapped infos')
-      this.populateInfoReport()
-      return
-    };
+      this.logger.debug('Report will be mapped infos');
+      this.populateInfoReport();
+      return;
+    }
 
     const shops = await this.shopApp.listAllShops();
     const shopIds = shops.map((x) => x.lojaId);
-    const date = new Date().toISOString()
+    const date = new Date().toISOString();
 
     const data = shopIds.map((x) => ({
       meta: 0,
       lojaId: x,
       concluido: false,
-      data: date
+      data: date,
     }));
 
     await this.reportModel.insertMany(data);
 
-    this.logger.debug('New month was populated')
+    this.logger.debug('New month was populated');
   };
-  
+
   public validateHasReportOnCurrentMonth = async () => {
     const initialDate = new Date();
     initialDate.setDate(1);
@@ -158,15 +169,15 @@ export class ReportApp {
         $gt: initialDate.toISOString(),
         $lte: endDate.toISOString(),
       },
-      concluido: false
+      concluido: false,
     });
-    const usersCount = await this.shopApp.count()
+    const usersCount = await this.shopApp.count();
 
     if (report?.length !== usersCount) {
-      await this.populateNewMonthReport()
-      this.logger.debug('Month was populated')
+      await this.populateNewMonthReport();
+      this.logger.debug('Month was populated');
     }
-  }
+  };
 
   private getResumedReport = async (shopId: string) => {
     const orders = await this.orderApp.listOrdersOnLastMonth(shopId);
@@ -188,7 +199,7 @@ export class ReportApp {
         acc.totalMes += order.total || 0;
         return acc;
       },
-      { concluido: true, totalMes: 0 } as ResumeMonth
+      { concluido: true, totalMes: 0 } as ResumeMonth,
     );
 
     Array.from(productsMap.values()).forEach((product) => {

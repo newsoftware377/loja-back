@@ -156,8 +156,10 @@ export class BoxApp {
       {
         $push: { despesas: expense },
       },
-      { new: true },
+      { new: true }
     );
+
+    console.log(newBox)
 
     return newBox.toObject();
   };
@@ -202,7 +204,7 @@ export class BoxApp {
   }
 
   private validateHasOpenedBox = async (user: ShopViewModel) => {
-     const openedBox = await this.boxModel.find({
+     const openedBox = await this.boxModel.findOne({
       lojaId: user.lojaId,
       empresaId: user.empresaId,
       aberto: true,
