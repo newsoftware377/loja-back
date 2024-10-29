@@ -6,8 +6,10 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { JWTService } from '../services/JWTService';
-import { mapToStockViewModel, StockViewModel } from 'src/api/viewModels/StockViewModel';
-import { StockApp } from '../app/StockApp';
+import {
+  mapToStockViewModel,
+  StockViewModel,
+} from 'src/api/viewModels/StockViewModel';
 import { InjectModel } from '@nestjs/mongoose';
 import { Stock } from '../models/StockModel';
 import { Model } from 'mongoose';
@@ -18,46 +20,47 @@ type Clients = {
 
 @WebSocketGateway({ transports: ['websocket'] })
 export class StockGatway implements OnGatewayConnection, OnGatewayDisconnect {
-  private readonly STOCK_CHANGE_EVENT = 'estoque/mudanca'
-  
+  private readonly STOCK_CHANGE_EVENT = 'estoque/mudanca';
+
   private clients: Clients = {};
   @WebSocketServer()
   private server: Server;
 
   constructor(
-   private readonly jwtService: JWTService,
-   @InjectModel(Stock.name) private readonly stockModel: Model<Stock>
-  ) { }
+    private readonly jwtService: JWTService,
+    @InjectModel(Stock.name) private readonly stockModel: Model<Stock>,
+  ) {}
 
   async handleConnection(client: Socket) {
     const lojaIds = (client.handshake.query.lojaIds as string).split(',');
 
     try {
       await this.validateUser(client);
-      lojaIds.forEach(id => {
+      lojaIds.forEach((id) => {
         const clientsWithSameLojaId = this.clients[id] || [];
         this.clients[id] = [...clientsWithSameLojaId, client.id];
-      })
-      const stock = await this.listStockByShopId(lojaIds)
-      this.server.to(client.id).emit(this.STOCK_CHANGE_EVENT, stock)
+      });
+      const stock = await this.listStockByShopId(lojaIds);
+      this.server.to(client.id).emit(this.STOCK_CHANGE_EVENT, stock);
     } catch (err) {
       client.disconnect();
     }
   }
 
   handleDisconnect(client: Socket) {
-    const lojaIds = (client.handshake.query.lojaIds as string).split(',')
+    const lojaIds = (client.handshake.query.lojaIds as string).split(',');
 
-    lojaIds.forEach(id => {
+    lojaIds.forEach((id) => {
       const clientsWithSameLojaId = this.clients[id] || [];
       this.clients[id] = clientsWithSameLojaId.filter((x) => x !== client.id);
-    })
+    });
   }
 
   async notifyStockChanges(dto: StockViewModel[]) {
+    if (!dto.length) return;
     const lojaId = dto[0].lojaId;
     const clients = this.clients[lojaId];
-    
+
     this.server.to(clients).emit(this.STOCK_CHANGE_EVENT, dto);
   }
 
@@ -67,9 +70,9 @@ export class StockGatway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.jwtService.decodeToken(token);
   }
 
-  private async listStockByShopId(shopIds: string[]){
-    const stock = await this.stockModel.find({ lojaId: { $in: shopIds }})
+  private async listStockByShopId(shopIds: string[]) {
+    const stock = await this.stockModel.find({ lojaId: { $in: shopIds } });
 
-    return stock.map(mapToStockViewModel)
+    return stock.map(mapToStockViewModel);
   }
 }

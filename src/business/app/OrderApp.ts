@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CrateItem, CreateOrderDto } from '../types/order/CreateOrderDto';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { InjectModel } from '@nestjs/mongoose';
@@ -15,25 +20,32 @@ export class OrderApp {
     @InjectModel(Order.name) private readonly orderModel: Model<Order>,
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
     private readonly stockApp: StockApp,
-    private readonly log: Logger
-  ) { }
+    private readonly log: Logger,
+  ) {}
 
   public createOrder = async (dto: CreateOrderDto, user: ShopViewModel) => {
-    this.log.debug('OrderApp:createOrder -> O pedido vai ser feito')
-    const { itens, comMudanca } = await this.stockApp.validateStock(dto.produtos, user.lojaId) 
+    this.log.debug('OrderApp:createOrder -> O pedido vai ser feito');
+    const { itens, comMudanca } = await this.stockApp.validateStock(
+      dto.produtos,
+      user.lojaId,
+    );
 
-    if (itens.every(x => x.qtd === 0)) {
-      this.log.debug('OrderApp:createOrder -> Todos os produtos fora de estoque')
-      throw new BadRequestException('Todos os produdos estão fora de estoque')
-    }
+    // if (itens.every((x) => x.qtd === 0)) {
+    //   this.log.debug(
+    //     'OrderApp:createOrder -> Todos os produtos fora de estoque',
+    //   );
+    //   throw new BadRequestException('Todos os produtos estão fora de estoque');
+    // }
 
-    if (comMudanca.length) {
-      this.log.debug('OrderApp:createOrder -> Algum dos produtos está fora de estoque')
-      throw new BadRequestException({
-        message: "Alguns produtos não tem o estoque solicitado",
-        data: comMudanca
-      })
-    }
+    // if (comMudanca.length) {
+    //   this.log.debug(
+    //     'OrderApp:createOrder -> Algum dos produtos está fora de estoque',
+    //   );
+    //   throw new BadRequestException({
+    //     message: 'Alguns produtos não tem o estoque solicitado',
+    //     data: comMudanca,
+    //   });
+    // }
 
     const products = await this.getProducts(itens, user);
 
@@ -48,8 +60,8 @@ export class OrderApp {
       produtos: products,
     });
 
-    await this.stockApp.reduceStock(itens, user.lojaId)
-    return order 
+    await this.stockApp.reduceStock(itens, user.lojaId);
+    return order;
   };
 
   public listOrders = async (user: ShopViewModel) => {
@@ -64,82 +76,92 @@ export class OrderApp {
 
     const orders = await this.orderModel.find({
       lojaId: shopId,
-      createdAt: { $gt: date.toISOString() } 
+      createdAt: { $gt: date.toISOString() },
     });
 
     return orders;
   };
 
-  public listOrdersTodayByList = async (shopIdLst: string[]): Promise<{ _id: string, orders: Order[]}[]> => {
+  public listOrdersTodayByList = async (
+    shopIdLst: string[],
+  ): Promise<{ _id: string; orders: Order[] }[]> => {
     const date = new Date();
     date.setHours(0, 1);
     const orders = await this.orderModel.aggregate([
-      { $match: {
-        lojaId: { $in: shopIdLst },
-        createdAt: { $gt: date.toISOString() } 
-      }},
-      { $group: {
-        _id: '$lojaId',
-        orders: { $push: "$$ROOT" }
-      }}
+      {
+        $match: {
+          lojaId: { $in: shopIdLst },
+          createdAt: { $gt: date.toISOString() },
+        },
+      },
+      {
+        $group: {
+          _id: '$lojaId',
+          orders: { $push: '$$ROOT' },
+        },
+      },
     ]);
 
     return orders;
   };
 
   public totalOnMonthUntilNow = async (lojaId: string) => {
-    const date = new Date()
-    date.setDate(1)
-    date.setHours(0, 1)
+    const date = new Date();
+    date.setDate(1);
+    date.setHours(0, 1);
 
     const ordersTotalSum = await this.orderModel.aggregate([
-      { $match: { lojaId, createdAt: { $gt: date.toISOString() } }},
-      { $group: { _id: null, sum: { $sum: '$total' }}},
-      { $project: { _id: 0, sum: 1} }
-    ]) 
+      { $match: { lojaId, createdAt: { $gt: date.toISOString() } } },
+      { $group: { _id: null, sum: { $sum: '$total' } } },
+      { $project: { _id: 0, sum: 1 } },
+    ]);
 
-    return ordersTotalSum
-  }
+    return ordersTotalSum;
+  };
 
   public listOrdersOnLastMonth = async (shopId: string) => {
     const initialDate = new Date();
-    initialDate.setMonth(initialDate.getMonth() - 1)
-    initialDate.setDate(1)
-    initialDate.setHours(0, 0)
+    initialDate.setMonth(initialDate.getMonth() - 1);
+    initialDate.setDate(1);
+    initialDate.setHours(0, 0);
 
-    const endDate = new Date()
-    endDate.setDate(0)
-    endDate.setHours(23, 0)
+    const endDate = new Date();
+    endDate.setDate(0);
+    endDate.setHours(23, 0);
 
     const orders = await this.orderModel.find({
       lojaId: shopId,
-      createdAt: { 
+      createdAt: {
         $gt: initialDate.toISOString(),
-        $lte: endDate.toISOString()
-      }
-    })
+        $lte: endDate.toISOString(),
+      },
+    });
 
-    return orders
-  }
+    return orders;
+  };
 
   public getOrdersMoreThatDate = async (shopId: string, date: Date) => {
     return this.orderModel.find({
       lojaId: shopId,
       createdAt: {
-        $gte: date.toISOString()
-      }
-    })
-  }
+        $gte: date.toISOString(),
+      },
+    });
+  };
 
-  public getOrdersMoreThatDate2 = async (shopId: string, date1: Date, date2: Date) => {
+  public getOrdersMoreThatDate2 = async (
+    shopId: string,
+    date1: Date,
+    date2: Date,
+  ) => {
     return this.orderModel.find({
       lojaId: shopId,
       createdAt: {
         $gte: date1.toISOString(),
-        $lte: date2.toISOString()
-      }
-    })
-  }
+        $lte: date2.toISOString(),
+      },
+    });
+  };
 
   private async getProducts(
     produtos: CrateItem[],
