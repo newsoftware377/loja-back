@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateProductDto } from '../types/product/CreateProductDt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Product } from '../models/ProductModel';
+import { Product, ProductDocument } from '../models/ProductModel';
 import { Model } from 'mongoose';
 import { ProductWithCategory } from '../types/product/Product';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
@@ -15,13 +15,16 @@ import { Category, CategoryDocument } from '../models/CategoryModel';
 import { CreateCategoryDto } from '../types/product/CreateCategoryDto';
 import { mapToProductViewModel } from 'src/api/viewModels/ProductViewModel';
 import { ListProductsDto } from '../types/product/ListProductsDto';
+import { StockApp } from './StockApp';
+import { Stock } from '../models/StockModel';
 
 @Injectable()
 export class ProductApp {
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
-  ) { }
+    private readonly stockApp: StockApp,
+  ) {}
 
   public createProduct = async (
     dto: CreateProductDto,
@@ -54,7 +57,7 @@ export class ProductApp {
     };
   };
 
-  public listProducts = async (
+  public listProductsToShop = async (
     shop: ShopViewModel | UserViewModel,
     lojaId: string,
     params: ListProductsDto,
@@ -73,19 +76,20 @@ export class ProductApp {
       filters['$or'] = termFilter;
     }
 
-    const products = await this.productModel
-      .find({
-        lojaId,
-        empresaId: shop.empresaId,
-        ...filters,
-      })
-      .then((product) => product.map((x) => x.toJSON()));
+    const products = await this.productModel.find({
+      lojaId,
+      empresaId: shop.empresaId,
+      ...filters,
+    });
+
+    const stock = await this.stockApp.getStockByShopId(lojaId);
 
     const categories = await this.categoryModel.find({ lojaId });
 
-    const productWithCategory = await this.mapWithCategory(
+    const productWithCategory = await this.mapWithCategoryAndQty(
       products,
       categories,
+      stock,
     );
     return productWithCategory;
   };
@@ -123,6 +127,7 @@ export class ProductApp {
     categories: CategoryDocument[],
   ) => {
     const categoriesHashMap = {};
+
     const productWithCategory = products.map((product) => {
       let category = '';
       if (categoriesHashMap[product.categoriaId]) {
@@ -138,6 +143,39 @@ export class ProductApp {
       return {
         ...product,
         categoria: category,
+      };
+    });
+
+    return productWithCategory;
+  };
+
+  private mapWithCategoryAndQty = async (
+    products: ProductDocument[],
+    categories: CategoryDocument[],
+    stock: Stock[],
+  ) => {
+    const categoriesHashMap = {};
+
+    const productWithCategory = products.map((product) => {
+      let category = '';
+      if (categoriesHashMap[product.categoriaId]) {
+        category = categoriesHashMap[product.categoriaId];
+      } else {
+        const categoryMatch = categories.find(
+          (x) => x._id.toString() === product.categoriaId,
+        );
+        categoriesHashMap[product.categoriaId] = categoryMatch?.nome;
+        category = categoryMatch?.nome;
+      }
+
+      const stockProduct = stock.find(
+        (x) => x.produtoId === product._id.toString(),
+      );
+
+      return {
+        ...product.toJSON(),
+        categoria: category,
+        qtd: stockProduct?.qtd || 0,
       };
     });
 
@@ -239,9 +277,9 @@ export class ProductApp {
     const newProduct = await this.productModel.findOneAndUpdate(
       { lojaId: user.lojaId, _id: id },
       { valorAtual: product.valorOriginal },
-      { new: true }
+      { new: true },
     );
 
-    return newProduct
+    return newProduct;
   }
 }

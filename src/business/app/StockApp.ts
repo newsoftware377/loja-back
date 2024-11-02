@@ -157,4 +157,12 @@ export class StockApp {
       produtoId: id,
     };
   };
+
+  public getStockByShopId = async (shopId: string) => {
+    const stock = await this.stockModel.find({
+      lojaId: shopId,
+    });
+
+    return stock.map((x) => x.toJSON());
+  };
 }

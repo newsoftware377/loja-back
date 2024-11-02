@@ -35,19 +35,19 @@ import { BoxApp } from './business/app/BoxApp';
 
 @Module({
   imports: [
-   MongooseModule.forRoot(process.env.MONGODB_URL),
-   MongooseModule.forFeature([
-     { name: User.name, schema: UserSchema },
-     { name: Shop.name, schema: ShopSchema },
-     { name: Product.name, schema: ProductSchema },
-     { name: Category.name, schema: CategorySchema},
-     { name: Client.name, schema: ClientSchema },
-     { name: Stock.name, schema: StockSchema },
-     { name: Order.name, schema: OrderSchema },
-     { name: Report.name, schema: ReportSchema },
-     { name: Box.name, schema: BoxSchema }
-   ]),
-   ScheduleModule.forRoot()
+    MongooseModule.forRoot(process.env.MONGODB_URL),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Shop.name, schema: ShopSchema },
+      { name: Product.name, schema: ProductSchema },
+      { name: Category.name, schema: CategorySchema },
+      { name: Client.name, schema: ClientSchema },
+      { name: Stock.name, schema: StockSchema },
+      { name: Order.name, schema: OrderSchema },
+      { name: Report.name, schema: ReportSchema },
+      { name: Box.name, schema: BoxSchema },
+    ]),
+    ScheduleModule.forRoot(),
   ],
   controllers: [
     AuthController,
@@ -58,7 +58,7 @@ import { BoxApp } from './business/app/BoxApp';
     OrderController,
     ReportController,
     UserController,
-    BoxController
+    BoxController,
   ],
   providers: [
     AuthApp,
@@ -74,8 +74,7 @@ import { BoxApp } from './business/app/BoxApp';
     JWTService,
     StockGatway,
     Logger,
-    ReportService
+    ReportService,
   ],
 })
-
 export class AppModule {}
