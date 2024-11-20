@@ -4,9 +4,8 @@ import { AuthAdminDto } from "src/business/types/auth/AuthAdminDto";
 import { CreateUserDto } from "src/business/types/auth/CreateUserDto";
 import { mapToUserViewModel, UserViewModel } from "../viewModels/UserViewModel";
 import { AuthShopDto } from "src/business/types/auth/AuthShopDto";
-import { AuthRequired } from "src/utils/decorators/AuthDecorator";
-import { Roles } from "src/utils/enums/Roles";
 import { ChangePasswordDto } from "src/business/types/auth/ChangePasswordDto";
+import { AuthWarehouseDto } from "src/business/types/auth/AuthWarehouseDto";
 
 @Controller('auth')
 export class AuthController {
@@ -23,6 +22,11 @@ export class AuthController {
   @Post('usuario/login')
   async adminLogin(@Body() body: AuthAdminDto) {
     return this.app.adminLogin(body)
+  }
+
+  @Post('deposito/login')
+  async warehouseLogin(@Body() body: AuthWarehouseDto) {
+    return this.app.warehouseLogin(body)
   }
 
   @Post('loja/login')

@@ -17,11 +17,13 @@ import { mapToProductViewModel } from 'src/api/viewModels/ProductViewModel';
 import { ListProductsDto } from '../types/product/ListProductsDto';
 import { StockApp } from './StockApp';
 import { Stock } from '../models/StockModel';
+import { ProductShop } from '../models/ProductShopModel';
 
 @Injectable()
 export class ProductApp {
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
+    @InjectModel(ProductShop.name) private readonly productShopModel: Model<ProductShop>,
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
     private readonly stockApp: StockApp,
   ) {}
@@ -281,5 +283,44 @@ export class ProductApp {
     );
 
     return newProduct;
+  }
+
+  public aggregateProducts = async (filters: Object) => {
+    return await this.productShopModel.aggregate([
+      {
+        $match: {
+          ...filters
+        }
+      },
+      {
+        $addFields: {
+          produto_id: {
+            $toObjectId: "$produtoId"
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "produto_id",
+          foreignField: "_id",
+          as: "produto"
+        }
+      },
+      {
+        $project: {
+          "nome": { $first: "$produto.nome"},
+          "categoriaId": { $first: "$produto.categoriaId"},
+          "valorOriginal": { $first: "$produto.valorOriginal"},
+          "valorCompra": { $first: "$produto.valorCompra"},
+          "codigoBarra": { $first: "$produto.codigoBarra"},
+          "qtdMinima": { $first: "$produto.qtdMinima"},
+          "empresaId": { $first: "$produto.empresaId"},
+          "produtoId": { $first: "$produto._id"},
+          "valorAtual": 1,
+          "lojaId": 1,
+        }
+      }
+    ]);
   }
 }
