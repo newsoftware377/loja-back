@@ -237,7 +237,7 @@ Enviar como parametro o **_Id do produto_**
 }
 ```
 
-- (Remover todos as promocoes) **PATCH** "produto/loja/removarTodasPromocoes"
+- (Remover todos as promocoes) **PATCH** "produto/loja/removerTodasPromocoes"
 
 ### Cliente
 
