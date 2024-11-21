@@ -24,6 +24,7 @@ import { CreateCategoryDto } from 'src/business/types/product/CreateCategoryDto'
 import { mapToCategoryViewModel } from '../viewModels/CategoryViewModel';
 import { UserViewModel } from '../viewModels/UserViewModel';
 import { ListProductsDto } from 'src/business/types/product/ListProductsDto';
+import { AllProductInPromotion } from 'src/business/types/product/AllProductsInPromotionDto';
 
 @Controller('produto')
 export class ProductController {
@@ -74,16 +75,6 @@ export class ProductController {
     @Param('id') id: string,
   ): Promise<ProductViewModel> {
     return this.app.deleteProduct(user, id).then(mapToProductViewModel);
-  }
-
-  @AuthRequired([Roles.shop])
-  @Patch('loja/:id')
-  async updateProduct(
-    @User() user: ShopViewModel,
-    @Body() body: UpdateProductDto,
-    @Param('id') id: string,
-  ) {
-    return this.app.updateProduct(user, body, id).then(mapToProductViewModel);
   }
 
   @AuthRequired([Roles.shop])
@@ -138,5 +129,27 @@ export class ProductController {
   @Patch('loja/removerPromocao/:id')
   async undoPromotion(@Param('id') id: string, @User() user: ShopViewModel) {
     return this.app.undoPromotion(id, user);
+  }
+
+  @AuthRequired([Roles.shop])
+  @Patch('loja/removerTodasPromocoes')
+  async undoAllPromotions(@User() user: ShopViewModel) {
+    return this.app.undoAllPromotions(user)
+  }
+
+  @AuthRequired([Roles.shop])
+  @Patch('loja/todosEmPromocao')
+  async allProductsInPromotion(@User() user: ShopViewModel, @Body() body: AllProductInPromotion) { 
+    return this.app.allProductsInPromotion(user, body)
+  }
+  
+  @AuthRequired([Roles.shop])
+  @Patch('loja/:id')
+  async updateProduct(
+    @User() user: ShopViewModel,
+    @Body() body: UpdateProductDto,
+    @Param('id') id: string,
+  ) {
+    return this.app.updateProduct(user, body, id).then(mapToProductViewModel);
   }
 }

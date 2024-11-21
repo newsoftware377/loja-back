@@ -17,6 +17,8 @@ import { mapToProductViewModel } from 'src/api/viewModels/ProductViewModel';
 import { ListProductsDto } from '../types/product/ListProductsDto';
 import { StockApp } from './StockApp';
 import { Stock } from '../models/StockModel';
+import { AllProductInPromotion } from '../types/product/AllProductsInPromotionDto';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class ProductApp {
@@ -24,7 +26,7 @@ export class ProductApp {
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
     private readonly stockApp: StockApp,
-  ) {}
+  ) { }
 
   public createProduct = async (
     dto: CreateProductDto,
@@ -282,4 +284,54 @@ export class ProductApp {
 
     return newProduct;
   }
+
+  public async undoAllPromotions (user: ShopViewModel) {
+    const products = await this.productModel.find({
+      lojaId: user.lojaId,
+    });
+
+    if (!products) {
+      throw new BadRequestException('Produto não encontrado');
+    }
+
+    const updatedProducts = products.map((x) => ({
+      updateOne: {
+        filter: { _id: x._id },
+        update: { valorAtual: x.valorOriginal },
+      },
+    }));
+
+    await this.productModel.bulkWrite(updatedProducts);
+
+    return {
+      ok: true
+    }
+  }
+
+  public async allProductsInPromotion (
+    user: ShopViewModel,
+    dto: AllProductInPromotion,
+  ) {
+    const products = await this.productModel.find({ lojaId: user.lojaId });
+
+    const calcValue = (value: number) => {
+      const percentage = new Decimal(100).minus(dto.porcentagemDesconto)      
+
+      const newValue = new Decimal(value).times(percentage).dividedBy(100).toFixed(2)
+      return Number(newValue)
+    }
+
+    const updatedProducts = products.map((x) => ({
+      updateOne: {
+        filter: { _id: x._id },
+        update: { valorAtual: calcValue(x.valorOriginal) },
+      },
+    }));
+
+    await this.productModel.bulkWrite(updatedProducts);
+
+    return {
+      ok: true
+    }
+  };
 }

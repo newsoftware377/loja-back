@@ -227,6 +227,18 @@ _Retorno de sucesso_
 
 Enviar como parametro o **_Id do produto_**
 
+ - (Adicionar promocao para todos os produtos) **PATCH** "produto/loja/todosEmPromocao"
+
+ Enviar isso no _body_ 
+
+```json
+{
+    "porcentagemDesconto": 20
+}
+```
+
+- (Remover todos as promocoes) **PATCH** "produto/loja/removarTodasPromocoes"
+
 ### Cliente
 
 - (Criar cliente) POST "cliente/loja"
