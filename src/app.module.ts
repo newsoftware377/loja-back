@@ -32,20 +32,27 @@ import { UserApp } from './business/app/UserApp';
 import { Box, BoxSchema } from './business/models/BoxModel';
 import { BoxController } from './api/controllers/BoxController';
 import { BoxApp } from './business/app/BoxApp';
+import { Warehouse, WarehouseSchema } from './business/models/WareHouseModel';
+import { ProductShop, ProductShopSchema } from './business/models/ProductShopModel';
+import { Seed } from './utils/seed';
+import { WarehouseApp } from './business/app/WarehouseApp';
+import { WarehouseController } from './api/controllers/WarehouseController';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGODB_URL),
+    MongooseModule.forRoot(process.env.MONGODB_URL, { dbName: "loja" }),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Shop.name, schema: ShopSchema },
       { name: Product.name, schema: ProductSchema },
+      { name: ProductShop.name, schema: ProductShopSchema },
       { name: Category.name, schema: CategorySchema },
       { name: Client.name, schema: ClientSchema },
       { name: Stock.name, schema: StockSchema },
       { name: Order.name, schema: OrderSchema },
       { name: Report.name, schema: ReportSchema },
       { name: Box.name, schema: BoxSchema },
+      { name: Warehouse.name, schema: WarehouseSchema }
     ]),
     ScheduleModule.forRoot(),
   ],
@@ -59,6 +66,7 @@ import { BoxApp } from './business/app/BoxApp';
     ReportController,
     UserController,
     BoxController,
+    WarehouseController
   ],
   providers: [
     AuthApp,
@@ -70,11 +78,13 @@ import { BoxApp } from './business/app/BoxApp';
     UserApp,
     ReportApp,
     BoxApp,
+    WarehouseApp,
     HashService,
     JWTService,
     StockGatway,
     Logger,
     ReportService,
+    Seed
   ],
 })
 export class AppModule {}

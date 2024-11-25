@@ -6,6 +6,8 @@ export interface ProductViewModel {
   categoriaId: string;
   valorAtual: number;
   valorOriginal: number;
+  valorCompra: number,
+  produtoId: string,
   codigoBarra: number;
   qtdMinima: number;
   id: string;
@@ -22,6 +24,8 @@ export const mapToProductViewModel = (
   codigoBarra: product.codigoBarra,
   categoriaId: product.categoriaId,
   qtdMinima: product.qtdMinima || 0,
+  produtoId: product.produtoId,
+  valorCompra: product.valorCompra
 });
 
 export interface ProductWithQtyViewModel extends ProductViewModel {

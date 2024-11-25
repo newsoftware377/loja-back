@@ -10,6 +10,13 @@ export class HashService {
     return `${standardName}-${hash}`;
   }
 
+  public createIdToWarehouse = (count: number) => {
+    const hash = crypto.randomBytes(20).toString('hex')
+    const standardName = `deposito-${count+1}`
+
+    return `${standardName}-${hash}`;
+  }
+
   public createIdToUser = (name: string) => {
     const hash = crypto.randomBytes(20).toString('hex')
     const standardName = decodeURI(name.replaceAll(' ', '-').toLowerCase())

@@ -11,12 +11,15 @@ import { JWTService } from "../services/JWTService";
 import { mapToUserViewModel, UserViewModel } from "src/api/viewModels/UserViewModel";
 import { mapToShopViewModel } from "src/api/viewModels/ShopViewModel";
 import { ChangePasswordDto } from "../types/auth/ChangePasswordDto";
+import { AuthWarehouseDto } from "../types/auth/AuthWarehouseDto";
+import { Warehouse } from "../models/WareHouseModel";
 
 @Injectable()
 export class AuthApp {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(Shop.name) private readonly shopModel: Model<Shop>,
+    @InjectModel(Warehouse.name) private readonly warehouseModel: Model<Warehouse>,
     private hashService: HashService,
     private jwtService: JWTService
   ) { }
@@ -36,6 +39,22 @@ export class AuthApp {
       email: dto.email,
       telefone: dto.telefone,
       senha: this.hashService.createHashWithSalt(dto.senha)
+    })
+
+    const depositoId = this.hashService.createIdToShop(1)
+
+    await this.warehouseModel.create({
+      depositoId,
+      empresaId,
+      nome: "Depostio 1",
+      endereco: {
+        endereco: "",
+        bairro: "",
+        cidade: "",
+        estado: "",
+        cep: "",
+        numer: 0
+      }
     })
 
     return user
@@ -78,6 +97,25 @@ export class AuthApp {
       token
     }
 
+  }
+
+  public warehouseLogin = async (dto: AuthWarehouseDto) => {
+    const user = await this.userModel.findOne({ empresaId: dto.empresaId })
+    if (!user) {
+      throw new NotFoundException('O ID da empresa esta errado')
+    }
+
+    const warehouse = await this.warehouseModel.findOne({ empresaId: dto.empresaId, depositoId: dto.depositoId })
+    if (!warehouse) {
+      throw new NotFoundException('ID da loja não encontrado para essa empresa')
+    }
+
+    const warehouseData = warehouse.toJSON()
+    const token = await this.jwtService.generateToken(warehouseData)
+
+    return {
+      token
+    }
   }
 
   public changePassword = async (dto: ChangePasswordDto) => {
