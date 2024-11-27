@@ -2,12 +2,12 @@ import { CategoryDocument } from "src/business/models/CategoryModel";
 
 export interface CategoryViewModel {
   nome: string;
-  lojaId: string;
+  empresaId: string;
   id: string
 }
 
 export const mapToCategoryViewModel = (category: CategoryDocument): CategoryViewModel => ({
-  lojaId: category.lojaId,
+  empresaId: category.empresaId,
   nome: category.nome,
   id: category._id.toString()
 })

@@ -40,7 +40,7 @@ import { WarehouseController } from './api/controllers/WarehouseController';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGODB_URL, { dbName: "loja" }),
+    MongooseModule.forRoot(process.env.MONGODB_URL),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Shop.name, schema: ShopSchema },

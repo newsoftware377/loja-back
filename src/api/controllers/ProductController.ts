@@ -25,18 +25,19 @@ import { mapToCategoryViewModel } from '../viewModels/CategoryViewModel';
 import { UserViewModel } from '../viewModels/UserViewModel';
 import { ListProductsDto } from 'src/business/types/product/ListProductsDto';
 import { AllProductInPromotion } from 'src/business/types/product/AllProductsInPromotionDto';
+import { Warehouse } from 'src/business/models/WareHouseModel';
 
 @Controller('produto')
 export class ProductController {
   constructor(private readonly app: ProductApp) {}
 
-  @AuthRequired([Roles.shop])
-  @Post('loja')
+  @AuthRequired([ Roles.warehouse])
+  @Post('deposito')
   async createProduct(
     @Body() body: CreateProductDto,
-    @User() shop: ShopViewModel,
+    @User() user:  Warehouse,
   ) {
-    return this.app.createProduct(body, shop).then(mapToProductViewModel);
+    return this.app.createProduct(body, user).then(mapToProductViewModel);
   }
 
   @AuthRequired([Roles.shop, Roles.user])
@@ -47,7 +48,7 @@ export class ProductController {
     @Query() params: ListProductsDto,
   ) {
     return this.app
-      .listProductsToShop(shop, lojaId, params)
+      .listProductsToShop(lojaId, params)
       .then((x) => x.map(mapToProductWithQtyViewModel));
   }
 
@@ -58,7 +59,7 @@ export class ProductController {
     @Query() params: ListProductsDto,
   ) {
     return this.app
-      .listProductsToShop(shop, shop.lojaId, params)
+      .listProductsToShop(shop.lojaId, params)
       .then((x) => x.map(mapToProductWithQtyViewModel));
   }
 
@@ -68,19 +69,19 @@ export class ProductController {
     return this.app.listProductsByBusiness(shop);
   }
 
-  @AuthRequired([Roles.shop])
+  @AuthRequired([Roles.warehouse])
   @Delete('loja/:id')
   async deleteProduct(
-    @User() user: ShopViewModel,
+    @User() user: Warehouse,
     @Param('id') id: string,
   ): Promise<ProductViewModel> {
     return this.app.deleteProduct(user, id).then(mapToProductViewModel);
   }
 
-  @AuthRequired([Roles.shop])
+  @AuthRequired([Roles.shop, Roles.warehouse])
   @Post('loja/categoria')
   async createCategory(
-    @User() user: ShopViewModel,
+    @User() user: ShopViewModel | Warehouse,
     @Body() body: CreateCategoryDto,
   ) {
     return this.app.createCategory(user, body).then(mapToCategoryViewModel);
@@ -94,19 +95,19 @@ export class ProductController {
       .then((x) => x.map(mapToCategoryViewModel));
   }
 
-  @AuthRequired([Roles.shop])
+  @AuthRequired([Roles.shop, Roles.warehouse])
   @Get('categoria')
-  async listCategoriesShop(@User() user: ShopViewModel) {
+  async listCategoriesShop(@User() user: ShopViewModel | Warehouse) {
     return this.app
-      .listCategories(user.lojaId)
+      .listCategories(user.empresaId)
       .then((x) => x.map(mapToCategoryViewModel));
   }
 
-  @AuthRequired([Roles.shop])
+  @AuthRequired([Roles.shop, Roles.warehouse])
   @Patch('loja/categoria/:id')
   async updateCategory(
     @Body() body: CreateCategoryDto,
-    @User() user: ShopViewModel,
+    @User() user: ShopViewModel | Warehouse,
     @Param('id') categoryId: string,
   ) {
     return this.app
@@ -150,6 +151,6 @@ export class ProductController {
     @Body() body: UpdateProductDto,
     @Param('id') id: string,
   ) {
-    return this.app.updateProduct(user, body, id).then(mapToProductViewModel);
+    return this.app.updateProduct(user, body, id)
   }
 }

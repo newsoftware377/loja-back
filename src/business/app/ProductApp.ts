@@ -7,47 +7,38 @@ import { CreateProductDto } from '../types/product/CreateProductDt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from '../models/ProductModel';
 import { Model } from 'mongoose';
-import { ProductWithCategory } from '../types/product/Product';
+import { ProductWithCategoryAndValue } from '../types/product/Product';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { UserViewModel } from 'src/api/viewModels/UserViewModel';
 import { UpdateProductDto } from '../types/product/UpdateProductDto';
 import { Category, CategoryDocument } from '../models/CategoryModel';
 import { CreateCategoryDto } from '../types/product/CreateCategoryDto';
-import { mapToProductViewModel } from 'src/api/viewModels/ProductViewModel';
+import { mapToProductViewModel, ProductViewModel } from 'src/api/viewModels/ProductViewModel';
 import { ListProductsDto } from '../types/product/ListProductsDto';
 import { StockApp } from './StockApp';
 import { Stock } from '../models/StockModel';
 import { ProductShop } from '../models/ProductShopModel';
 import { AllProductInPromotion } from '../types/product/AllProductsInPromotionDto';
 import Decimal from 'decimal.js';
+import { Warehouse } from '../models/WareHouseModel';
 
 @Injectable()
 export class ProductApp {
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
-    @InjectModel(ProductShop.name) private readonly productShopModel: Model<ProductShop>,
+    @InjectModel(ProductShop.name)
+    private readonly productShopModel: Model<ProductShop>,
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
     private readonly stockApp: StockApp,
   ) { }
 
   public createProduct = async (
     dto: CreateProductDto,
-    shop: ShopViewModel,
-  ): Promise<ProductWithCategory> => {
-    const product = await this.productModel.create({
-      nome: dto.nome,
-      categoriaId: dto.categoriaId,
-      valorAtual: dto.valorAtual || dto.valorOriginal,
-      valorOriginal: dto.valorOriginal,
-      valorCompra: dto.valorCompra,
-      lojaId: shop.lojaId,
-      empresaId: shop.empresaId,
-      codigoBarra: dto.codigoBarra,
-      qtdMinima: dto.qtdMinima,
-    });
-
+    user: Warehouse,
+  ): Promise<ProductWithCategoryAndValue> => {
+    
     const category = await this.categoryModel.findOne({
-      lojaId: shop.lojaId,
+      empresaId: user.empresaId,
       _id: dto.categoriaId,
     });
 
@@ -55,14 +46,35 @@ export class ProductApp {
       throw new NotFoundException('Categoria nao encontrada');
     }
 
+    const product = await this.productModel.create({
+      nome: dto.nome,
+      categoriaId: dto.categoriaId,
+      valorOriginal: dto.valorOriginal,
+      valorCompra: dto.valorCompra,
+      lojaId: dto.lojaId,
+      empresaId: user.empresaId,
+      codigoBarra: dto.codigoBarra,
+      qtdMinima: dto.qtdMinima,
+      depositoId: user.depositoId
+    });
+
+    const productShop = await this.productShopModel.create({
+      lojaId: dto.lojaId,
+      produtoId: product._id.toString(),
+      depositoId: user.depositoId,
+      valorAtual: dto.valorAtual,
+      createdAt: new Date().toJSON(),
+      updatedAt: new Date().toJSON(),
+    });
+
     return {
       ...product.toJSON(),
+      ...productShop.toJSON(),
       categoria: category.nome,
     };
   };
 
   public listProductsToShop = async (
-    shop: ShopViewModel | UserViewModel,
     lojaId: string,
     params: ListProductsDto,
   ) => {
@@ -80,9 +92,8 @@ export class ProductApp {
       filters['$or'] = termFilter;
     }
 
-    const products = await this.productModel.find({
+    const products = await this.aggregateProducts({
       lojaId,
-      empresaId: shop.empresaId,
       ...filters,
     });
 
@@ -177,7 +188,7 @@ export class ProductApp {
       );
 
       return {
-        ...product.toJSON(),
+        ...product,
         categoria: category,
         qtd: stockProduct?.qtd || 0,
       };
@@ -186,23 +197,26 @@ export class ProductApp {
     return productWithCategory;
   };
 
-  public deleteProduct = async (user: ShopViewModel, id: string) => {
+  public deleteProduct = async (user: Warehouse, id: string) => {
     const product = await this.productModel.findOneAndDelete({
       _id: id,
       empresaId: user.empresaId,
-      lojaId: user.lojaId,
     });
+
+    await this.productShopModel.deleteMany({
+      _id: id
+    })
 
     return product;
   };
 
   public updateProduct = async (
-    user: ShopViewModel,
+    user: ShopViewModel | Warehouse,
     dto: UpdateProductDto,
     id: string,
   ) => {
     const query = {
-      lojaId: user.lojaId,
+      lojaId: dto.lojaId,
       empresaId: user.empresaId,
       _id: id,
     };
@@ -217,20 +231,32 @@ export class ProductApp {
       { new: true },
     );
 
-    return productUpdated;
+    const productShopUpdated = await this.productShopModel.findOneAndUpdate(
+      { _id: product._id},
+      { valorAtual: dto.valorAtual }
+    )
+    
+
+    return {
+      ...productUpdated,
+      ...productShopUpdated
+    };
   };
 
-  public async createCategory(user: ShopViewModel, dto: CreateCategoryDto) {
+  public async createCategory(
+    user: ShopViewModel | Warehouse,
+    dto: CreateCategoryDto,
+  ) {
     const category = await this.categoryModel.create({
       nome: dto.nome,
-      lojaId: user.lojaId,
+      empresaId: user.empresaId,
     });
 
     return category.toJSON();
   }
 
-  public async listCategories(lojaId: string) {
-    const categories = await this.categoryModel.find({ lojaId });
+  public async listCategories(empresaId: string) {
+    const categories = await this.categoryModel.find({ empresaId });
 
     return categories;
   }
@@ -238,10 +264,10 @@ export class ProductApp {
   public async updateCategoryName(
     dto: CreateCategoryDto,
     categoryId: string,
-    user: ShopViewModel,
+    user: ShopViewModel | Warehouse,
   ) {
     const category = await this.categoryModel.findOneAndUpdate(
-      { _id: categoryId, lojaId: user.lojaId },
+      { _id: categoryId, empresaId: user.empresaId },
       { nome: dto.nome },
       { new: true },
     );
@@ -287,7 +313,7 @@ export class ProductApp {
     return newProduct;
   }
 
-  public async undoAllPromotions (user: ShopViewModel) {
+  public async undoAllPromotions(user: ShopViewModel) {
     const products = await this.productModel.find({
       lojaId: user.lojaId,
     });
@@ -306,22 +332,25 @@ export class ProductApp {
     await this.productModel.bulkWrite(updatedProducts);
 
     return {
-      ok: true
-    }
+      ok: true,
+    };
   }
 
-  public async allProductsInPromotion (
+  public async allProductsInPromotion(
     user: ShopViewModel,
     dto: AllProductInPromotion,
   ) {
     const products = await this.productModel.find({ lojaId: user.lojaId });
 
     const calcValue = (value: number) => {
-      const percentage = new Decimal(100).minus(dto.porcentagemDesconto)      
+      const percentage = new Decimal(100).minus(dto.porcentagemDesconto);
 
-      const newValue = new Decimal(value).times(percentage).dividedBy(100).toFixed(2)
-      return Number(newValue)
-    }
+      const newValue = new Decimal(value)
+        .times(percentage)
+        .dividedBy(100)
+        .toFixed(2);
+      return Number(newValue);
+    };
 
     const updatedProducts = products.map((x) => ({
       updateOne: {
@@ -333,46 +362,46 @@ export class ProductApp {
     await this.productModel.bulkWrite(updatedProducts);
 
     return {
-      ok: true
-    }
-  };
+      ok: true,
+    };
+  }
 
   private aggregateProducts = async (filters: Object) => {
-    return await this.productShopModel.aggregate([
+    const x =  await this.productShopModel.aggregate([
       {
-        $match: {
-          ...filters
-        }
+        $match: filters
       },
       {
         $addFields: {
           produto_id: {
-            $toObjectId: "$produtoId"
-          }
-        }
+            $toObjectId: '$produtoId',
+          },
+        },
       },
       {
         $lookup: {
-          from: "products",
-          localField: "produto_id",
-          foreignField: "_id",
-          as: "produto"
-        }
+          from: 'products',
+          localField: 'produto_id',
+          foreignField: '_id',
+          as: 'produto',
+        },
       },
       {
         $project: {
-          "nome": { $first: "$produto.nome"},
-          "categoriaId": { $first: "$produto.categoriaId"},
-          "valorOriginal": { $first: "$produto.valorOriginal"},
-          "valorCompra": { $first: "$produto.valorCompra"},
-          "codigoBarra": { $first: "$produto.codigoBarra"},
-          "qtdMinima": { $first: "$produto.qtdMinima"},
-          "empresaId": { $first: "$produto.empresaId"},
-          "produtoId": { $first: "$produto._id"},
-          "valorAtual": 1,
-          "lojaId": 1,
-        }
-      }
-    ]);
-  }
+          nome: { $first: '$produto.nome' },
+          categoriaId: { $first: '$produto.categoriaId' },
+          valorOriginal: { $first: '$produto.valorOriginal' },
+          valorCompra: { $first: '$produto.valorCompra' },
+          codigoBarra: { $first: '$produto.codigoBarra' },
+          qtdMinima: { $first: '$produto.qtdMinima' },
+          empresaId: { $first: '$produto.empresaId' },
+          produtoId: { $first: '$produto._id' },
+          valorAtual: 1,
+          lojaId: 1,
+        },
+      },
+    ])  
+
+    return x as ProductDocument[]
+  };
 }

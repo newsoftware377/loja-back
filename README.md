@@ -48,7 +48,7 @@ _Retorno de sucesso_
 {
   "nome": "Vestido",
   "id": "669a94b45455bc666c787215",
-  "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
+  "empresaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
 }
 ```
 
@@ -63,12 +63,12 @@ _Retorno de sucesso_
   {
     "nome": "Vestido",
     "id": "669a94b45455bc666c787215",
-    "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
+    "empresaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
   },
   {
     "nome": "Vestido",
     "id": "669a94b45455bc666c787215",
-    "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
+    "empresaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
   }
 ]
 ```
@@ -103,12 +103,12 @@ _Retorno de sucesso_
     {
         "nome": "Calçado",
         "id": "669a94b45455bc666c787215",
-        "lojaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
+        "empresaId": "loja-1-1a3317ffbb490572c6347adb7996974381d15a3b"
     },
 
 ```
 
-- (Criar um produto) **POST** : "produto/loja"
+- (Criar um produto) **POST** : "produto/deposito"
 
 Enviar isso no _body_
 

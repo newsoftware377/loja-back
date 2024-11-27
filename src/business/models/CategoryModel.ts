@@ -9,7 +9,7 @@ export class Category {
   nome: string
   
   @Prop({ required: true, type: String})
-  lojaId: string
+  empresaId: string
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category)

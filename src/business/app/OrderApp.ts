@@ -188,7 +188,8 @@ export class OrderApp {
       return {
         qtd: qty,
         nome: product.nome,
-        preco: product.valorAtual,
+        // TODO ARRUMAR AQUI
+        preco: 0,
         produtoId: product._id.toString(),
       };
     });
