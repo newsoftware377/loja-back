@@ -12,9 +12,6 @@ export class Product {
   categoriaId: string
 
   @Prop({ required: true, type: Number})
-  valorAtual: number
-
-  @Prop({ required: true, type: Number})
   valorOriginal: number
 
   @Prop({ required: true, type: Number})
@@ -29,6 +26,9 @@ export class Product {
   @Prop({ required: true, default: 0, type: Number})
   qtdMinima: number
    
+  @Prop({ required: true, default: 0, type: Number})
+  qtd: number
+
   @Prop({ required: true, type: String})
   depositoId: string
 

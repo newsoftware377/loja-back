@@ -1,4 +1,4 @@
-import { ProductWithCategory } from 'src/business/types/product/Product';
+import { ProductWithCategoryAndValue } from 'src/business/types/product/Product';
 
 export interface ProductViewModel {
   nome: string;
@@ -14,7 +14,7 @@ export interface ProductViewModel {
 }
 
 export const mapToProductViewModel = (
-  product: ProductWithCategory,
+  product: ProductWithCategoryAndValue,
 ): ProductViewModel => ({
   nome: product.nome,
   categoria: product.categoria,
@@ -33,7 +33,7 @@ export interface ProductWithQtyViewModel extends ProductViewModel {
 }
 
 export const mapToProductWithQtyViewModel = (
-  product: ProductWithCategory & { qtd: number },
+  product: ProductWithCategoryAndValue & { qtd: number },
 ): ProductWithQtyViewModel => ({
   ...mapToProductViewModel(product),
   qtd: product.qtd,

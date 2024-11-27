@@ -1,3 +1,3 @@
-import { CreateClientDto } from "../client/CreateClientDto";
+import { CreateProductDto } from "./CreateProductDt";
 
-export type UpdateProductDto = Partial<CreateClientDto>
+export type UpdateProductDto = Partial<CreateProductDto>

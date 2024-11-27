@@ -1,3 +1,7 @@
 import { ProductDocument } from "src/business/models/ProductModel";
 
-export type ProductWithCategory = ProductDocument & { categoria: string, produtoId: string }
+export type ProductWithCategoryAndValue = ProductDocument & {
+  categoria: string;
+  produtoId: string;
+  valorAtual: number
+}

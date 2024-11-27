@@ -41,19 +41,19 @@ export class AuthApp {
       senha: this.hashService.createHashWithSalt(dto.senha)
     })
 
-    const depositoId = this.hashService.createIdToShop(1)
+    const depositoId = this.hashService.createIdToWarehouse(1)
 
     await this.warehouseModel.create({
       depositoId,
       empresaId,
       nome: "Depostio 1",
       endereco: {
-        endereco: "",
-        bairro: "",
-        cidade: "",
-        estado: "",
-        cep: "",
-        numer: 0
+        endereco: "0",
+        bairro: "0",
+        cidade: "0",
+        estado: "0",
+        cep: "0",
+        numero: 0
       }
     })
 

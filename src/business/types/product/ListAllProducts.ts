@@ -1,6 +1,6 @@
-import { ProductWithCategory } from "./Product";
+import { ProductWithCategoryAndValue } from "./Product";
 
 export interface ListAllProducts {
   lojaId: string;
-  products: ProductWithCategory[]
+  products: ProductWithCategoryAndValue[]
 }
