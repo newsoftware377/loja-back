@@ -20,34 +20,42 @@ import { Stock } from '../models/StockModel';
 import { ProductShop } from '../models/ProductShopModel';
 import { AllProductInPromotion } from '../types/product/AllProductsInPromotionDto';
 import Decimal from 'decimal.js';
+import { Warehouse } from '../models/WareHouseModel';
 
 @Injectable()
 export class ProductApp {
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
-    @InjectModel(ProductShop.name) private readonly productShopModel: Model<ProductShop>,
+    @InjectModel(ProductShop.name)
+    private readonly productShopModel: Model<ProductShop>,
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
+    @InjectModel(Warehouse.name)
+    private readonly warehouseModel: Model<Warehouse>,
     private readonly stockApp: StockApp,
   ) { }
 
   public createProduct = async (
     dto: CreateProductDto,
-    shop: ShopViewModel,
+    user: ShopViewModel | Warehouse,
   ): Promise<ProductWithCategory> => {
+    const lojaId = 'lojaId' in user ? user.lojaId : dto.lojaId;
+    const depositoId = 'depositoId' in user ? user.depositoId : '';
+
     const product = await this.productModel.create({
       nome: dto.nome,
       categoriaId: dto.categoriaId,
       valorAtual: dto.valorAtual || dto.valorOriginal,
       valorOriginal: dto.valorOriginal,
       valorCompra: dto.valorCompra,
-      lojaId: shop.lojaId,
-      empresaId: shop.empresaId,
+      lojaId: lojaId,
+      empresaId: user.empresaId,
       codigoBarra: dto.codigoBarra,
       qtdMinima: dto.qtdMinima,
+      depositoId: depositoId,
     });
 
     const category = await this.categoryModel.findOne({
-      lojaId: shop.lojaId,
+      lojaId: lojaId,
       _id: dto.categoriaId,
     });
 
@@ -287,7 +295,7 @@ export class ProductApp {
     return newProduct;
   }
 
-  public async undoAllPromotions (user: ShopViewModel) {
+  public async undoAllPromotions(user: ShopViewModel) {
     const products = await this.productModel.find({
       lojaId: user.lojaId,
     });
@@ -306,22 +314,25 @@ export class ProductApp {
     await this.productModel.bulkWrite(updatedProducts);
 
     return {
-      ok: true
-    }
+      ok: true,
+    };
   }
 
-  public async allProductsInPromotion (
+  public async allProductsInPromotion(
     user: ShopViewModel,
     dto: AllProductInPromotion,
   ) {
     const products = await this.productModel.find({ lojaId: user.lojaId });
 
     const calcValue = (value: number) => {
-      const percentage = new Decimal(100).minus(dto.porcentagemDesconto)      
+      const percentage = new Decimal(100).minus(dto.porcentagemDesconto);
 
-      const newValue = new Decimal(value).times(percentage).dividedBy(100).toFixed(2)
-      return Number(newValue)
-    }
+      const newValue = new Decimal(value)
+        .times(percentage)
+        .dividedBy(100)
+        .toFixed(2);
+      return Number(newValue);
+    };
 
     const updatedProducts = products.map((x) => ({
       updateOne: {
@@ -333,46 +344,46 @@ export class ProductApp {
     await this.productModel.bulkWrite(updatedProducts);
 
     return {
-      ok: true
-    }
-  };
+      ok: true,
+    };
+  }
 
   private aggregateProducts = async (filters: Object) => {
     return await this.productShopModel.aggregate([
       {
         $match: {
-          ...filters
-        }
+          ...filters,
+        },
       },
       {
         $addFields: {
           produto_id: {
-            $toObjectId: "$produtoId"
-          }
-        }
+            $toObjectId: '$produtoId',
+          },
+        },
       },
       {
         $lookup: {
-          from: "products",
-          localField: "produto_id",
-          foreignField: "_id",
-          as: "produto"
-        }
+          from: 'products',
+          localField: 'produto_id',
+          foreignField: '_id',
+          as: 'produto',
+        },
       },
       {
         $project: {
-          "nome": { $first: "$produto.nome"},
-          "categoriaId": { $first: "$produto.categoriaId"},
-          "valorOriginal": { $first: "$produto.valorOriginal"},
-          "valorCompra": { $first: "$produto.valorCompra"},
-          "codigoBarra": { $first: "$produto.codigoBarra"},
-          "qtdMinima": { $first: "$produto.qtdMinima"},
-          "empresaId": { $first: "$produto.empresaId"},
-          "produtoId": { $first: "$produto._id"},
-          "valorAtual": 1,
-          "lojaId": 1,
-        }
-      }
+          nome: { $first: '$produto.nome' },
+          categoriaId: { $first: '$produto.categoriaId' },
+          valorOriginal: { $first: '$produto.valorOriginal' },
+          valorCompra: { $first: '$produto.valorCompra' },
+          codigoBarra: { $first: '$produto.codigoBarra' },
+          qtdMinima: { $first: '$produto.qtdMinima' },
+          empresaId: { $first: '$produto.empresaId' },
+          produtoId: { $first: '$produto._id' },
+          valorAtual: 1,
+          lojaId: 1,
+        },
+      },
     ]);
-  }
+  };
 }

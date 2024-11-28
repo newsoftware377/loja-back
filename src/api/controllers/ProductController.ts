@@ -30,7 +30,7 @@ import { AllProductInPromotion } from 'src/business/types/product/AllProductsInP
 export class ProductController {
   constructor(private readonly app: ProductApp) {}
 
-  @AuthRequired([Roles.shop])
+  @AuthRequired([Roles.shop, Roles.warehouse])
   @Post('loja')
   async createProduct(
     @Body() body: CreateProductDto,

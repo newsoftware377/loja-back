@@ -29,7 +29,7 @@ export class Product {
   @Prop({ required: true, default: 0, type: Number})
   qtdMinima: number
    
-  @Prop({ required: true, type: String})
+  @Prop({ type: String, default: "" })
   depositoId: string
 
   @Prop({ required: true, type: String})
