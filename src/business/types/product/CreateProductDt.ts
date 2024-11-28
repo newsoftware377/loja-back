@@ -25,7 +25,8 @@ export class CreateProductDto {
   qtdMinima: number
 
   @IsString()
-  lojaId: string
+  @IsOptional()
+  lojaId?: string
 }
 
 

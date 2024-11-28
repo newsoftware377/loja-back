@@ -31,8 +31,8 @@ import { Warehouse } from 'src/business/models/WareHouseModel';
 export class ProductController {
   constructor(private readonly app: ProductApp) {}
 
-  @AuthRequired([ Roles.warehouse])
-  @Post('deposito')
+  @AuthRequired([Roles.shop, Roles.warehouse])
+  @Post('loja')
   async createProduct(
     @Body() body: CreateProductDto,
     @User() user:  Warehouse,

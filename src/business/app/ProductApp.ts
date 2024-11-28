@@ -29,16 +29,31 @@ export class ProductApp {
     @InjectModel(ProductShop.name)
     private readonly productShopModel: Model<ProductShop>,
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
+    @InjectModel(Warehouse.name)
     private readonly stockApp: StockApp,
   ) { }
 
   public createProduct = async (
     dto: CreateProductDto,
-    user: Warehouse,
+    user: ShopViewModel | Warehouse,
   ): Promise<ProductWithCategoryAndValue> => {
-    
-    const category = await this.categoryModel.findOne({
+    const lojaId = 'lojaId' in user ? user.lojaId : dto.lojaId;
+    const depositoId = 'depositoId' in user ? user.depositoId : '';
+
+    const product = await this.productModel.create({
+      nome: dto.nome,
+      categoriaId: dto.categoriaId,
+      valorOriginal: dto.valorOriginal,
+      valorCompra: dto.valorCompra,
+      lojaId: lojaId,
       empresaId: user.empresaId,
+      codigoBarra: dto.codigoBarra,
+      qtdMinima: dto.qtdMinima,
+      depositoId: depositoId,
+    });
+
+    const category = await this.categoryModel.findOne({
+      lojaId: lojaId,
       _id: dto.categoriaId,
     });
 
@@ -46,22 +61,10 @@ export class ProductApp {
       throw new NotFoundException('Categoria nao encontrada');
     }
 
-    const product = await this.productModel.create({
-      nome: dto.nome,
-      categoriaId: dto.categoriaId,
-      valorOriginal: dto.valorOriginal,
-      valorCompra: dto.valorCompra,
-      lojaId: dto.lojaId,
-      empresaId: user.empresaId,
-      codigoBarra: dto.codigoBarra,
-      qtdMinima: dto.qtdMinima,
-      depositoId: user.depositoId
-    });
-
     const productShop = await this.productShopModel.create({
       lojaId: dto.lojaId,
       produtoId: product._id.toString(),
-      depositoId: user.depositoId,
+      depositoId: depositoId,
       valorAtual: dto.valorAtual,
       createdAt: new Date().toJSON(),
       updatedAt: new Date().toJSON(),
