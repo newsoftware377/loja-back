@@ -11,7 +11,7 @@ export class ProductShop {
   @Prop({ required: true, type: String})
   lojaId: string  
 
-  @Prop({ required: true, type: String})
+  @Prop({ type: String, default: ""})
   depositoId: string
 
   @Prop({ required: true, type: String})

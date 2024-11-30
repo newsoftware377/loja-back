@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ProductApp } from 'src/business/app/ProductApp';
-import { CreateProductDto } from 'src/business/types/product/CreateProductDt';
+import { CreateProductDto, CreateProductWarehouseDto } from 'src/business/types/product/CreateProductDt';
 import { User } from 'src/utils/decorators/User';
 import { ShopViewModel } from '../viewModels/ShopViewModel';
 import { AuthRequired } from 'src/utils/decorators/AuthDecorator';
@@ -19,7 +19,7 @@ import {
   mapToProductWithQtyViewModel,
   ProductViewModel,
 } from '../viewModels/ProductViewModel';
-import { UpdateProductDto } from 'src/business/types/product/UpdateProductDto';
+import { UpdateProductDto, UpdateProductWarehouseDto } from 'src/business/types/product/UpdateProductDto';
 import { CreateCategoryDto } from 'src/business/types/product/CreateCategoryDto';
 import { mapToCategoryViewModel } from '../viewModels/CategoryViewModel';
 import { UserViewModel } from '../viewModels/UserViewModel';
@@ -31,19 +31,27 @@ import { Warehouse } from 'src/business/models/WareHouseModel';
 export class ProductController {
   constructor(private readonly app: ProductApp) {}
 
-  @AuthRequired([Roles.shop, Roles.warehouse])
+  @AuthRequired([Roles.shop])
   @Post('loja')
   async createProduct(
     @Body() body: CreateProductDto,
-    @User() user:  Warehouse,
+    @User() user:  ShopViewModel,
   ) {
     return this.app.createProduct(body, user).then(mapToProductViewModel);
   }
 
-  @AuthRequired([Roles.shop, Roles.user])
+  @AuthRequired([Roles.warehouse])
+  @Post('deposito')
+  async createProductWarehouse(
+    @Body() body: CreateProductWarehouseDto,
+    @User() user:  Warehouse,
+  ) {
+    return this.app.createProductWarehouse(body, user).then(mapToProductViewModel);
+  }
+
+  @AuthRequired([Roles.shop, Roles.user, Roles.warehouse])
   @Get('lista/:lojaId')
   async listProducts(
-    @User() shop: ShopViewModel | UserViewModel,
     @Param('lojaId') lojaId: string,
     @Query() params: ListProductsDto,
   ) {
@@ -69,10 +77,10 @@ export class ProductController {
     return this.app.listProductsByBusiness(shop);
   }
 
-  @AuthRequired([Roles.warehouse])
+  @AuthRequired([Roles.warehouse, Roles.shop])
   @Delete('loja/:id')
   async deleteProduct(
-    @User() user: Warehouse,
+    @User() user: Warehouse | ShopViewModel,
     @Param('id') id: string,
   ): Promise<ProductViewModel> {
     return this.app.deleteProduct(user, id).then(mapToProductViewModel);
@@ -152,5 +160,15 @@ export class ProductController {
     @Param('id') id: string,
   ) {
     return this.app.updateProduct(user, body, id)
+  }
+
+  @AuthRequired([Roles.warehouse])
+  @Patch('deposito/:id')
+  async updateProductWarehouse(
+    @User() user: Warehouse,
+    @Body() body: UpdateProductWarehouseDto,
+    @Param('id') id: string,
+  ) {
+    return this.app.updateProductWarehouse(user, body, id)
   }
 }
