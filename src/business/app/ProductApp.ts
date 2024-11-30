@@ -3,17 +3,26 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateProductDto } from '../types/product/CreateProductDt';
+import {
+  CreateProductDto,
+  CreateProductWarehouseDto,
+} from '../types/product/CreateProductDt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from '../models/ProductModel';
 import { Model } from 'mongoose';
 import { ProductWithCategoryAndValue } from '../types/product/Product';
 import { ShopViewModel } from 'src/api/viewModels/ShopViewModel';
 import { UserViewModel } from 'src/api/viewModels/UserViewModel';
-import { UpdateProductDto } from '../types/product/UpdateProductDto';
+import {
+  UpdateProductDto,
+  UpdateProductWarehouseDto,
+} from '../types/product/UpdateProductDto';
 import { Category, CategoryDocument } from '../models/CategoryModel';
 import { CreateCategoryDto } from '../types/product/CreateCategoryDto';
-import { mapToProductViewModel, ProductViewModel } from 'src/api/viewModels/ProductViewModel';
+import {
+  mapToProductViewModel,
+  ProductViewModel,
+} from 'src/api/viewModels/ProductViewModel';
 import { ListProductsDto } from '../types/product/ListProductsDto';
 import { StockApp } from './StockApp';
 import { Stock } from '../models/StockModel';
@@ -21,6 +30,7 @@ import { ProductShop } from '../models/ProductShopModel';
 import { AllProductInPromotion } from '../types/product/AllProductsInPromotionDto';
 import Decimal from 'decimal.js';
 import { Warehouse } from '../models/WareHouseModel';
+import { Shop } from '../models/ShopModel';
 
 @Injectable()
 export class ProductApp {
@@ -28,17 +38,29 @@ export class ProductApp {
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
     @InjectModel(ProductShop.name)
     private readonly productShopModel: Model<ProductShop>,
+    @InjectModel(Shop.name) private readonly shopModel: Model<Shop>,
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
+    @InjectModel(Warehouse.name)
     private readonly stockApp: StockApp,
   ) { }
 
   public createProduct = async (
     dto: CreateProductDto,
-    user: Warehouse,
+    user: ShopViewModel,
   ): Promise<ProductWithCategoryAndValue> => {
-    
-    const category = await this.categoryModel.findOne({
+    const product = await this.productModel.create({
+      nome: dto.nome,
+      categoriaId: dto.categoriaId,
+      valorOriginal: dto.valorOriginal,
+      valorCompra: dto.valorCompra,
+      lojaId: user.lojaId,
       empresaId: user.empresaId,
+      codigoBarra: dto.codigoBarra,
+      qtdMinima: dto.qtdMinima,
+    });
+
+    const category = await this.categoryModel.findOne({
+      lojaId: user.lojaId,
       _id: dto.categoriaId,
     });
 
@@ -46,6 +68,33 @@ export class ProductApp {
       throw new NotFoundException('Categoria nao encontrada');
     }
 
+    const productShop = await this.productShopModel.create({
+      lojaId: user.lojaId,
+      produtoId: product._id.toString(),
+      valorAtual: dto.valorAtual,
+      createdAt: new Date().toJSON(),
+      updatedAt: new Date().toJSON(),
+    });
+
+    return {
+      ...product.toJSON(),
+      ...productShop.toJSON(),
+      categoria: category.nome,
+    };
+  };
+
+  public createProductWarehouse = async (
+    dto: CreateProductWarehouseDto,
+    user: Warehouse,
+  ): Promise<ProductWithCategoryAndValue> => {
+    const shop = await this.shopModel.findOne({
+      lojaId: dto.lojaId,
+      empresaId: user.empresaId,
+    });
+
+    if (!shop) {
+      throw new NotFoundException('Loja não encontrada');
+    }
     const product = await this.productModel.create({
       nome: dto.nome,
       categoriaId: dto.categoriaId,
@@ -55,13 +104,22 @@ export class ProductApp {
       empresaId: user.empresaId,
       codigoBarra: dto.codigoBarra,
       qtdMinima: dto.qtdMinima,
-      depositoId: user.depositoId
+      depositoId: user.depositoId,
+      qtdDeposito: dto.qtdDeposito,
     });
+
+    const category = await this.categoryModel.findOne({
+      lojaId: dto.lojaId,
+      _id: dto.categoriaId,
+    });
+
+    if (!category) {
+      throw new NotFoundException('Categoria nao encontrada');
+    }
 
     const productShop = await this.productShopModel.create({
       lojaId: dto.lojaId,
       produtoId: product._id.toString(),
-      depositoId: user.depositoId,
       valorAtual: dto.valorAtual,
       createdAt: new Date().toJSON(),
       updatedAt: new Date().toJSON(),
@@ -197,22 +255,54 @@ export class ProductApp {
     return productWithCategory;
   };
 
-  public deleteProduct = async (user: Warehouse, id: string) => {
+  public deleteProduct = async (user: Warehouse | ShopViewModel, id: string) => {
     const product = await this.productModel.findOneAndDelete({
       _id: id,
       empresaId: user.empresaId,
     });
 
     await this.productShopModel.deleteMany({
-      _id: id
-    })
+      _id: id,
+    });
 
     return product;
   };
 
   public updateProduct = async (
-    user: ShopViewModel | Warehouse,
+    user: ShopViewModel,
     dto: UpdateProductDto,
+    id: string,
+  ) => {
+    const query = {
+      lojaId: user.lojaId,
+      empresaId: user.empresaId,
+      _id: id,
+    };
+    const product = await this.productModel.findOne(query);
+
+    const productUpdated = await this.productModel.findOneAndUpdate(
+      query,
+      {
+        ...product.toObject(),
+        ...dto,
+      },
+      { new: true },
+    );
+
+    const productShopUpdated = await this.productShopModel.findOneAndUpdate(
+      { produtoId: product._id },
+      { valorAtual: dto.valorAtual },
+    );
+
+    return {
+      ...productUpdated.toObject(),
+      ...productShopUpdated.toObject(),
+    };
+  };
+
+  public updateProductWarehouse = async (
+    user: Warehouse,
+    dto: UpdateProductWarehouseDto,
     id: string,
   ) => {
     const query = {
@@ -232,14 +322,15 @@ export class ProductApp {
     );
 
     const productShopUpdated = await this.productShopModel.findOneAndUpdate(
-      { _id: product._id},
-      { valorAtual: dto.valorAtual }
-    )
+      { produtoId: product._id },
+      { valorAtual: dto.valorAtual },
+    );
     
+    console.log(productUpdated, productShopUpdated)
 
     return {
-      ...productUpdated,
-      ...productShopUpdated
+      ...productUpdated.toObject(),
+      ...productShopUpdated.toObject(),
     };
   };
 
@@ -367,9 +458,9 @@ export class ProductApp {
   }
 
   private aggregateProducts = async (filters: Object) => {
-    const x =  await this.productShopModel.aggregate([
+    const x = await this.productShopModel.aggregate([
       {
-        $match: filters
+        $match: filters,
       },
       {
         $addFields: {
@@ -400,8 +491,8 @@ export class ProductApp {
           lojaId: 1,
         },
       },
-    ])  
+    ]);
 
-    return x as ProductDocument[]
+    return x as ProductDocument[];
   };
 }

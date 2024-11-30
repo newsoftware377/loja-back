@@ -23,9 +23,14 @@ export class CreateProductDto {
   @IsOptional()
   @IsPositive()
   qtdMinima: number
+}
 
+export class CreateProductWarehouseDto extends CreateProductDto {
   @IsString()
-  lojaId: string
+  lojaId?: string
+
+  @IsPositive()
+  qtdDeposito: number
 }
 
 
