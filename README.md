@@ -6,6 +6,7 @@
 
 - (Fazer o login) **POST** : "auth/loja/login"
 
+
 Enviar isso no _body_
 
 ```json
